@@ -4,13 +4,13 @@ on:
   push:
     branches:
       # - main
-      - release
-  pull_request:
-    branches:
-      - main
-      - release
-    types:
-      - closed
+      - apk
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - release
+  #   types:
+  #     - closed
 
 env:
   APP_NAME: "android-app"
