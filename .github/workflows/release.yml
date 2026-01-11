@@ -91,9 +91,38 @@ jobs:
           mkdir -p release
           #  find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
           # find src-tauri/gen/android/app/build/outputs -name "*.apk" -exec cp {} release/ \
+
+          find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \)
+
           find src-tauri/gen/android/app/build/outputs \
             -type f \( -name "*.apk" -o -name "*.aab" \) \
             -exec cp {} release/ \;
+
+      - name: Convert AAB to APK
+        run: |
+          curl -L -o bundletool.jar \
+            https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar
+
+          mkdir -p release/apks_tmp
+
+          for aab in release/*.aab; do
+            echo "Processing $aab"
+
+            name=$(basename "$aab" .aab)
+
+            java -jar bundletool.jar build-apks \
+              --bundle="$aab" \
+              --output="release/apks_tmp/${name}.apks" \
+              --mode=universal
+
+            unzip -o "release/apks_tmp/${name}.apks" -d "release/apks_tmp/${name}"
+
+            cp "release/apks_tmp/${name}/universal.apk" \
+              "release/${name}.apk"
+          done
+
+          ls -lh release
+
 
       - uses: ncipollo/release-action@v1
         if: github.ref == 'refs/heads/release'
