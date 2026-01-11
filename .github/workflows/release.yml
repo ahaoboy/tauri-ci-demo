@@ -84,6 +84,7 @@ jobs:
           args: ${{ matrix.args }}
           mobile: android
           uploadWorkflowArtifacts: true
+          uploadPlainBinary: true
 
       - name: copy apk
         run: |
