@@ -83,3 +83,4 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
           mobile: android
+          uploadWorkflowArtifacts: true
