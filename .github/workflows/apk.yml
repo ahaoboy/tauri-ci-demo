@@ -122,3 +122,12 @@ jobs:
           prerelease: false
           files: |
             ./src-tauri/gen/android/app/build/outputs/apk/universal/release/${{env.APP_NAME}}-${{ steps.app-version.outputs.version_string }}.apk
+      - uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          artifacts: "release/dist/*"
+          allowUpdates: true
+          tag: "nightly"
+          name: "nightly"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: main

@@ -84,3 +84,18 @@ jobs:
           args: ${{ matrix.args }}
           mobile: android
           uploadWorkflowArtifacts: true
+
+      - name: copy apk
+        run:
+          mkdir -p release
+          find src-tauri/gen/android/app/build/outputs \
+            -type f \( -name "*.apk" -o -name "*.aab" \) \
+            -exec cp {} release/ \;
+      - uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/release'
+        with:
+          artifacts: "release/*"
+          allowUpdates: true
+          tag: "nightly"
+          name: "nightly"
+          token: ${{ secrets.GITHUB_TOKEN }}
