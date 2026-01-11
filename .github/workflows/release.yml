@@ -87,10 +87,9 @@ jobs:
 
       - name: copy apk
         run:
-          mkdir -p release
-          find src-tauri/gen/android/app/build/outputs \
-            -type f \( -name "*.apk" -o -name "*.aab" \) \
-            -exec cp {} release/ \;
+         mkdir -p release
+         find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
+
       - uses: ncipollo/release-action@v1
         if: github.ref == 'refs/heads/release'
         with:
