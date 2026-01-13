@@ -5,16 +5,23 @@ import "./App.css";
 function App() {
   const [id, setId] = useState("");
   const [audio, setAudio] = useState('')
+  const [error, setError] = useState('')
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    const data: ArrayBuffer = await invoke("get_audio", { id })
-    console.log(data)
-    const mimeType = "audio/mp4" // 常见: audio/mpeg, audio/wav, audio/ogg
-    const blob = new Blob([new Uint8Array(data)], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    setAudio(url)
-    console.log(url)
+    try {
+      const data: ArrayBuffer = await invoke("get_audio", { id })
+
+      console.log(data)
+      const mimeType = "audio/mp4" // 常见: audio/mpeg, audio/wav, audio/ogg
+      const blob = new Blob([new Uint8Array(data)], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      setAudio(url)
+      console.log(url)
+    } catch (e) {
+      setError(e as string)
+    }
+
   }
 
   return (
@@ -30,6 +37,7 @@ function App() {
         }}
       >download</button>
       {!!audio.length && <audio src={audio} controls></audio>}
+      {!!error.length && <h2>{error}</h2>}
     </main>
   );
 }
