@@ -72,6 +72,15 @@ jobs:
           pnpm install # change this to npm, pnpm or bun depending on which one you use.
           pnpm tauri android init
 
+      - name: setup Android signing
+        run: |
+          mkdir -p src-tauri/gen/android
+          cd src-tauri/gen/android
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
+          echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+          base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
+          echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
+
       - uses: tauri-apps/tauri-action@e839bb55b23d177d8cb537c2e10f41decb2d1089
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,42 +97,42 @@ jobs:
           uploadWorkflowArtifacts: true
           uploadPlainBinary: true
 
-      - name: copy apk
-        run: |
-          mkdir -p release
-          #  find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
-          # find src-tauri/gen/android/app/build/outputs -name "*.apk" -exec cp {} release/ \
+      # - name: copy apk
+      #   run: |
+      #     mkdir -p release
+      #     #  find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
+      #     # find src-tauri/gen/android/app/build/outputs -name "*.apk" -exec cp {} release/ \
 
-          find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \)
+      #     find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \)
 
-          find src-tauri/gen/android/app/build/outputs \
-            -type f \( -name "*.apk" -o -name "*.aab" \) \
-            -exec cp {} release/ \;
+      #     find src-tauri/gen/android/app/build/outputs \
+      #       -type f \( -name "*.apk" -o -name "*.aab" \) \
+      #       -exec cp {} release/ \;
 
-      - name: Convert AAB to APK
-        run: |
-          curl -L -o bundletool.jar \
-            https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar
+      # - name: Convert AAB to APK
+      #   run: |
+      #     curl -L -o bundletool.jar \
+      #       https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar
 
-          mkdir -p release/apks_tmp
+      #     mkdir -p release/apks_tmp
 
-          for aab in release/*.aab; do
-            echo "Processing $aab"
+      #     for aab in release/*.aab; do
+      #       echo "Processing $aab"
 
-            name=$(basename "$aab" .aab)
+      #       name=$(basename "$aab" .aab)
 
-            java -jar bundletool.jar build-apks \
-              --bundle="$aab" \
-              --output="release/apks_tmp/${name}.apks" \
-              --mode=universal
+      #       java -jar bundletool.jar build-apks \
+      #         --bundle="$aab" \
+      #         --output="release/apks_tmp/${name}.apks" \
+      #         --mode=universal
 
-            unzip -o "release/apks_tmp/${name}.apks" -d "release/apks_tmp/${name}"
+      #       unzip -o "release/apks_tmp/${name}.apks" -d "release/apks_tmp/${name}"
 
-            cp "release/apks_tmp/${name}/universal.apk" \
-              "release/${name}.apk"
-          done
+      #       cp "release/apks_tmp/${name}/universal.apk" \
+      #         "release/${name}.apk"
+      #     done
 
-          ls -lh release
+      #     ls -lh release
 
 
       - uses: ncipollo/release-action@v1
