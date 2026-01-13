@@ -97,17 +97,17 @@ jobs:
           uploadWorkflowArtifacts: true
           uploadPlainBinary: true
 
-      - name: copy apk
-        run: |
-          mkdir -p release
-          #  find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
-          # find src-tauri/gen/android/app/build/outputs -name "*.apk" -exec cp {} release/ \
+      # - name: copy apk
+      #   run: |
+      #     mkdir -p release
+      #     #  find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
+      #     # find src-tauri/gen/android/app/build/outputs -name "*.apk" -exec cp {} release/ \
 
-          find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \)
+      #     find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \)
 
-          find src-tauri/gen/android/app/build/outputs \
-            -type f \( -name "*.apk" -o -name "*.aab" \) \
-            -exec cp {} release/ \;
+      #     find src-tauri/gen/android/app/build/outputs \
+      #       -type f \( -name "*.apk" -o -name "*.aab" \) \
+      #       -exec cp {} release/ \;
 
       # - name: Convert AAB to APK
       #   run: |
