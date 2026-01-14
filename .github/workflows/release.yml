@@ -83,7 +83,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install build-essential libc6-dev libclang-dev gcc-multilib
+          sudo apt install build-essential libc6-dev libclang-dev gcc-multilib -y
       - uses: tauri-apps/tauri-action@e839bb55b23d177d8cb537c2e10f41decb2d1089
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
