@@ -1,23 +1,26 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-
+type Audio = {
+  title: string,
+  data: ArrayBuffer
+}
 function App() {
-  const [id, setId] = useState("");
+  const [url, setUrl] = useState("");
   const [audio, setAudio] = useState('')
   const [error, setError] = useState('')
+  const [title, setTitle] = useState('')
 
   async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     try {
-      const data: ArrayBuffer = await invoke("get_audio", { id })
-
+      const data: Audio = await invoke("download", { url })
       console.log(data)
       const mimeType = "audio/mp4" // 常见: audio/mpeg, audio/wav, audio/ogg
-      const blob = new Blob([new Uint8Array(data)], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      setAudio(url)
-      console.log(url)
+      const blob = new Blob([new Uint8Array(data.data)], { type: mimeType });
+      const link = URL.createObjectURL(blob);
+      setAudio(link)
+      setTitle(data.title)
+      console.log(link)
     } catch (e) {
       setError(e as string)
     }
@@ -27,8 +30,8 @@ function App() {
   return (
     <main className="container">
       <input
-        onChange={(e) => setId(e.currentTarget.value)}
-        placeholder="Enter a bvid..."
+        onChange={(e) => setUrl(e.currentTarget.value)}
+        placeholder="Enter a url..."
       />
       <button type="submit"
         onClick={(e) => {
@@ -37,7 +40,8 @@ function App() {
         }}
       >download</button>
       {!!audio.length && <audio src={audio} controls></audio>}
-      {!!error.length && <h2>{error}</h2>}
+      {!!title.length && <h2>{title}</h2>}
+      {!!error.length && <h3>{error}</h3>}
     </main>
   );
 }
