@@ -17,6 +17,9 @@ async fn extract_audio(url: &str, app_handle: tauri::AppHandle) -> Result<Vec<Lo
         .path()
         .app_data_dir()
         .map_err(|e| e.to_string())?;
+    if std::fs::exists(&app_data_dir).unwrap_or(false) {
+        std::fs::create_dir_all(&app_data_dir).map_err(|e| e.to_string())?;
+    }
     api::extract_audio_info(url, app_data_dir)
         .await
         .map_err(|e| e.to_string())

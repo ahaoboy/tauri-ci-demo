@@ -9,8 +9,7 @@ const ASSETS_DIR: &str = "assets";
 pub async fn extract_audio_info(url: &str, app_dir: PathBuf) -> anyhow::Result<Vec<LocalAudio>> {
     let assets_dir = app_dir.join(ASSETS_DIR);
     if !assets_dir.exists() {
-
-        fs::create_dir_all(&app_dir).await?;
+        fs::create_dir_all(&assets_dir).await?;
     }
     let audios = musicfree::extract(url).await?;
     let mut v = Vec::with_capacity(audios.len());
