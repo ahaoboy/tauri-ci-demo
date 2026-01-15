@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use musicfree::Audio;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
-
 mod api;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -17,6 +16,7 @@ async fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
     let app_data_dir = app_handle
         .path()
         .app_data_dir()
+        // .audio_dir()
         .map_err(|e| e.to_string())?;
     if std::fs::exists(&app_data_dir).unwrap_or(false) {
         std::fs::create_dir_all(&app_data_dir).map_err(|e| e.to_string())?;
@@ -26,10 +26,20 @@ async fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
 
 #[tauri::command]
 async fn extract_audio(url: &str, app_handle: tauri::AppHandle) -> Result<Vec<LocalAudio>, String> {
-    let dir =  app_dir(app_handle).await.map_err(|e| e.to_string())?;
+    let dir = app_dir(app_handle).await.map_err(|e| e.to_string())?;
     api::extract_audio_info(url, dir)
         .await
         .map_err(|e| e.to_string())
+}
+
+pub struct FileInfo {}
+
+#[tauri::command]
+async fn read_file(path: &str, app_handle: tauri::AppHandle) -> Result<Vec<u8>, String> {
+    let dir = app_dir(app_handle).await.map_err(|e| e.to_string())?;
+    let path = dir.join(path);
+    let bin = std::fs::read(path).map_err(|e| e.to_string())?;
+    Ok(bin)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -37,7 +47,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![extract_audio, app_dir])
+        .invoke_handler(tauri::generate_handler![extract_audio, app_dir, read_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

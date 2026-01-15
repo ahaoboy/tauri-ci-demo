@@ -58,6 +58,22 @@
   border-color: #396cd8;
 }
 
+.audio-type-select {
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.25s;
+  background-color: white;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.audio-type-select:focus {
+  border-color: #396cd8;
+}
+
 .download-btn {
   padding: 0.8rem 1.5rem;
   background-color: #396cd8;
@@ -76,6 +92,69 @@
 .download-btn:disabled {
   background-color: #a0a0a0;
   cursor: not-allowed;
+}
+
+.data-source-buttons {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.data-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #f0f0f0;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+
+.data-btn:hover {
+  background-color: #e8e8e8;
+  border-color: #396cd8;
+}
+
+.data-btn.active {
+  background-color: #396cd8;
+  color: white;
+  border-color: #396cd8;
+}
+
+.data-source-buttons p {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.download-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.download-file-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.25s;
+  margin-top: 0.5rem;
+}
+
+.download-file-btn:hover {
+  background-color: #218838;
 }
 
 .error {
@@ -140,6 +219,30 @@
 .audio-player {
   width: 100%;
   margin-top: 1rem;
+}
+
+.video-section {
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.video-player {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+.player-section h4, .video-section h4 {
+  margin: 1.5rem 0 0.5rem 0;
+  color: #396cd8;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .logo {
@@ -226,14 +329,16 @@ button {
     background-color: #0f0f0f69;
   }
 
-  .url-field {
+  .url-field,
+  .audio-type-select {
     background-color: #0f0f0f98;
     border-color: #444;
     color: #ffffff;
   }
 
   .audio-list,
-  .player-section {
+  .player-section,
+  .video-section {
     background-color: #2f2f2f;
     color: #f6f6f6;
   }
@@ -246,5 +351,48 @@ button {
     background-color: #721c24;
     border-color: #842029;
     color: #f8d7da;
+  }
+
+  .data-btn {
+    background-color: #2f2f2f;
+    border-color: #444;
+    color: #ffffff;
+  }
+
+  .data-btn:hover {
+    background-color: #1f1f1f;
+    border-color: #396cd8;
+  }
+
+  .data-btn.active {
+    background-color: #396cd8;
+    color: white;
+    border-color: #396cd8;
+  }
+
+  .data-source-buttons p {
+    color: #ccc;
+  }
+
+  .download-section {
+    border-top-color: #444;
+  }
+
+  .download-file-btn {
+    background-color: #28a745;
+  }
+
+  .download-file-btn:hover {
+    background-color: #218838;
+  }
+
+  .player-section h4,
+  .video-section h4 {
+    color: #5a9fd4;
+  }
+
+  .player-section p,
+  .video-section p {
+    color: #ccc;
   }
 }

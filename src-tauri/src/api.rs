@@ -15,7 +15,15 @@ pub async fn extract_audio_info(url: &str, app_dir: PathBuf) -> anyhow::Result<V
     let mut v = Vec::with_capacity(audios.len());
     for audio in audios {
         let id = format!("{:x}", md5::compute(&audio.download_url));
-        let filename = format!("{}.m4a", id);
+        let filename = format!(
+            "{}{}",
+            id,
+            audio
+                .format
+                .clone()
+                .unwrap_or(musicfree::core::AudioFormat::Mp3)
+                .extension()
+        );
         let file_path = assets_dir.join(&filename);
         if file_path.exists() {
             continue;

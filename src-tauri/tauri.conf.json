@@ -32,7 +32,7 @@
         "enable": true,
         "scope": {
           "allow": [
-            "$APPDATA/**"
+            "**"
           ]
         }
       }
