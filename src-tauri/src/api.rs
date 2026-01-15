@@ -7,11 +7,12 @@ use crate::LocalAudio;
 const ASSETS_DIR: &str = "assets";
 
 pub async fn extract_audio_info(url: &str, app_dir: PathBuf) -> anyhow::Result<Vec<LocalAudio>> {
-    let audios = musicfree::extract(url).await?;
     let assets_dir = app_dir.join(ASSETS_DIR);
-    if !app_dir.exists() {
+    if !assets_dir.exists() {
+
         fs::create_dir_all(&app_dir).await?;
     }
+    let audios = musicfree::extract(url).await?;
     let mut v = Vec::with_capacity(audios.len());
     for audio in audios {
         let id = format!("{:x}", md5::compute(&audio.download_url));
