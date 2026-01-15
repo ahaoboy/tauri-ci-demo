@@ -1,6 +1,34 @@
-use musicfree::Audio;
+use std::path::PathBuf;
 
-pub async fn download(url: &str) -> anyhow::Result<Audio> {
-    let audio = musicfree::download_audio(url).await?;
-    Ok(audio)
+use tokio::fs;
+
+use crate::LocalAudio;
+
+const ASSETS_DIR: &str = "assets";
+
+pub async fn extract_audio_info(url: &str, app_dir: PathBuf) -> anyhow::Result<Vec<LocalAudio>> {
+    let audios = musicfree::extract(url).await?;
+    let assets_dir = app_dir.join(ASSETS_DIR);
+    if !app_dir.exists() {
+        fs::create_dir_all(&app_dir).await?;
+    }
+    let mut v = Vec::with_capacity(audios.len());
+    for audio in audios {
+        let id = format!("{:x}", md5::compute(&audio.download_url));
+        let filename = format!("{}.m4a", id);
+        let file_path = assets_dir.join(&filename);
+        if file_path.exists() {
+            continue;
+        }
+        if let Some(bin) = &audio.binary {
+            fs::write(&file_path, bin).await?;
+        }
+
+        v.push(LocalAudio {
+            id,
+            path: format!("{}/{}", ASSETS_DIR, filename),
+            audio,
+        });
+    }
+    Ok(v)
 }

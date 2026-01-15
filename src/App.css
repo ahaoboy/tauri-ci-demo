@@ -23,13 +23,123 @@
 
 .container {
   margin: 0;
-  padding-top: 10vh;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: center;
   text-align: center;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  gap: 2rem;
+}
+
+.input-section {
+  width: 100%;
+  max-width: 600px;
+}
+
+.url-input {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.url-field {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.25s;
+}
+
+.url-field:focus {
+  border-color: #396cd8;
+}
+
+.download-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #396cd8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.25s;
+}
+
+.download-btn:hover:not(:disabled) {
+  background-color: #2a5aa8;
+}
+
+.download-btn:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  max-width: 600px;
+}
+
+.audio-list {
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.audio-item {
+  border-bottom: 1px solid #e1e5e9;
+  padding: 1rem 0;
+}
+
+.audio-item:last-child {
+  border-bottom: none;
+}
+
+.audio-item h4 {
+  margin: 0 0 0.5rem 0;
+  color: #0f0f0f;
+}
+
+.audio-item p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.player-section {
+  width: 100%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.album-cover {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 1rem auto;
+  display: block;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.audio-player {
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .logo {
@@ -114,5 +224,27 @@ button {
   }
   button:active {
     background-color: #0f0f0f69;
+  }
+
+  .url-field {
+    background-color: #0f0f0f98;
+    border-color: #444;
+    color: #ffffff;
+  }
+
+  .audio-list,
+  .player-section {
+    background-color: #2f2f2f;
+    color: #f6f6f6;
+  }
+
+  .audio-item {
+    border-bottom-color: #444;
+  }
+
+  .error {
+    background-color: #721c24;
+    border-color: #842029;
+    color: #f8d7da;
   }
 }
