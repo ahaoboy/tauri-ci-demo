@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import "./App.css";
-import { appDataDir, join } from "@tauri-apps/api/path";
+import { appDataDir, audioDir, join } from "@tauri-apps/api/path";
 
 type Audio = {
   title: string,
@@ -30,7 +30,13 @@ function App() {
   const [currentAudioUrl, setCurrentAudioUrl] = useState("");
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentCover, setCurrentCover] = useState("");
-
+  const [dir, setDir] = useState('')
+  useEffect(() => {
+    invoke("app_dir").then(s => {
+      console.log("app_dir", s)
+      setDir(s as string)
+    })
+  }, [])
   async function extractAndDownload() {
     if (!url.trim()) {
       setError("请输入有效的URL");
@@ -51,9 +57,11 @@ function App() {
 
       // 下载第一个音频
       const firstAudio = audios[0];
-      const appDataDirPath = await appDataDir();
-      const localPath = await join(appDataDirPath, firstAudio.path);
+      // const appDataDirPath = await audioDir();
+      const appDataDirPath: string = await invoke("app_dir");
 
+      const localPath = await join(appDataDirPath, firstAudio.path);
+      setDir(appDataDirPath)
       // 转换本地文件路径为可用的URL
       const assetUrl = convertFileSrc(localPath);
       console.log(assetUrl, localPath)
@@ -91,15 +99,16 @@ function App() {
       </div>
 
       {error && <div className="error">{error}</div>}
-
+      <p>dir: {dir}</p>
       {audioList.length > 0 && (
         <div className="audio-list">
           <h3>找到的音频 ({audioList.length})</h3>
-          {audioList.map(({ audio }, index) => (
+          {audioList.map(({ audio, path }, index) => (
             <div key={index} className="audio-item">
               <h4>{audio.title}</h4>
               <p>作者: {audio.author.join(", ")}</p>
               <p>平台: {audio.platform}</p>
+              <p>path: {path}</p>
               {audio.duration && <p>时长: {audio.duration}秒</p>}
             </div>
           ))}
