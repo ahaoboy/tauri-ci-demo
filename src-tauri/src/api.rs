@@ -26,6 +26,12 @@ pub async fn extract_audio_info(url: &str, app_dir: PathBuf) -> anyhow::Result<V
         );
         let file_path = assets_dir.join(&filename);
         if file_path.exists() {
+            // File exists, still add to the list
+            v.push(LocalAudio {
+                id,
+                path: format!("{}/{}", ASSETS_DIR, filename),
+                audio,
+            });
             continue;
         }
         if let Some(bin) = &audio.binary {

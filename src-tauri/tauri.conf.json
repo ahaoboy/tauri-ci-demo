@@ -19,12 +19,12 @@
     ],
     "security": {
       "csp": {
-        "default-src": "'self' customprotocol: asset:",
+        "default-src": "'self' customprotocol: asset: http://asset.localhost https://asset.localhost",
         "connect-src": "ipc: http://ipc.localhost",
         "font-src": [
           "https://fonts.gstatic.com"
         ],
-        "img-src": "'self' asset: http://asset.localhost blob: data:",
+        "img-src": "'self' asset: http://asset.localhost https://asset.localhost blob: data:",
         "style-src": "'unsafe-inline' 'self' https://fonts.googleapis.com"
       },
       "freezePrototype": true,
@@ -36,6 +36,7 @@
           ]
         }
       }
+
     }
   },
   "bundle": {

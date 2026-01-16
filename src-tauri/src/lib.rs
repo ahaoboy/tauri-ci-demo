@@ -16,9 +16,11 @@ async fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
     let app_data_dir = app_handle
         .path()
         .app_data_dir()
-        // .audio_dir()
+        // .public_dir()
+        // .resource_dir()
+        // .app_data_dir()
         .map_err(|e| e.to_string())?;
-    if std::fs::exists(&app_data_dir).unwrap_or(false) {
+    if !std::fs::exists(&app_data_dir).unwrap_or(false) {
         std::fs::create_dir_all(&app_data_dir).map_err(|e| e.to_string())?;
     }
     Ok(app_data_dir)
@@ -45,9 +47,15 @@ async fn read_file(path: &str, app_handle: tauri::AppHandle) -> Result<Vec<u8>, 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![extract_audio, app_dir, read_file])
+        .invoke_handler(tauri::generate_handler![
+            extract_audio,
+            app_dir,
+            read_file,
+
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
