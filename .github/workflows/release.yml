@@ -58,7 +58,7 @@ jobs:
       - name: install frontend dependencies
         run: pnpm install
 
-      - uses: tauri-apps/tauri-action@ve839bb55b23d177d8cb537c2e10f41decb2d1089
+      - uses: tauri-apps/tauri-action@e839bb55b23d177d8cb537c2e10f41decb2d1089
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}

@@ -40,5 +40,16 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "windows": {
+        "installMode": "passive"
+      },
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU0QkUzNzlFMURBMDI2REIKUldUYkpxQWRuamUrNUFrRy8zWTg5ZXVxSkNFWjZvb0w1UEkvSlFSaEdSRzZlZzFjNm9qQjlPVS8K",
+      "endpoints": [
+        "https://github.com/ahaoboy/tauri-ci-demo/releases/latest/download/latest.json"
+      ]
+    }
   }
 }
