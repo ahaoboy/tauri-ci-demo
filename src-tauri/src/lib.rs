@@ -7,7 +7,6 @@ mod api;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct LocalAudio {
-    id: String,
     path: String,
     audio: Audio,
 }
@@ -27,9 +26,19 @@ async fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
 }
 
 #[tauri::command]
-async fn extract_audio(url: &str, app_handle: tauri::AppHandle) -> Result<Vec<LocalAudio>, String> {
+async fn extract_audios(url: &str) -> Result<Vec<Audio>, String> {
+    musicfree::extract(url).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn download_audio(
+    mut audio: Audio,
+    app_handle: tauri::AppHandle,
+) -> Result<LocalAudio, String> {
     let dir = app_dir(app_handle).await.map_err(|e| e.to_string())?;
-    api::extract_audio_info(url, dir)
+
+
+    api::download_audio(&mut audio, dir)
         .await
         .map_err(|e| e.to_string())
 }
@@ -51,10 +60,10 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            extract_audio,
+            extract_audios,
             app_dir,
             read_file,
-
+            download_audio
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
