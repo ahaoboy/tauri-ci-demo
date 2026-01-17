@@ -96,14 +96,25 @@ export function app_dir(): Promise<string> {
   return invoke("app_dir");
 }
 
+export function read_file(path: string): Promise<Uint8Array> {
+  return invoke("read_file", { path });
+}
+
 export function download_cover(audio: Audio): Promise<string | null> {
   return invoke("download_cover", { audio });
 }
 
+// export async function get_loacl_url(path: string): Promise<string> {
+//   const appDataDirPath: string = await invoke("app_dir");
+//   const localPath = await join(appDataDirPath, path);
+//   const assetUrl = convertFileSrc(localPath);
+//   return assetUrl
+// }
+
 export async function get_loacl_url(path: string): Promise<string> {
-  const appDataDirPath: string = await invoke("app_dir");
-  const localPath = await join(appDataDirPath, path);
-  const assetUrl = convertFileSrc(localPath);
+  const bin = await read_file(path);
+  const blob = new Blob([new Uint8Array(bin)]);
+  const assetUrl = URL.createObjectURL(blob)
   return assetUrl
 }
 
