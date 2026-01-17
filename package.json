@@ -16,7 +16,8 @@
     "@tauri-apps/plugin-fs": "~2.4.5",
     "@tauri-apps/plugin-opener": "^2.5.3",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.9.6",

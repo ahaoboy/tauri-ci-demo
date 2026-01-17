@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use musicfree::Audio;
+use serde::{Deserialize, Serialize};
 use tokio::fs;
 
 use crate::LocalAudio;
@@ -33,7 +34,18 @@ pub async fn download_audio(audio: &mut Audio, app_dir: PathBuf) -> anyhow::Resu
         fs::write(&file_path, bin).await?;
     }
     Ok(LocalAudio {
-        path: format!("{}/{}", ASSETS_DIR, filename),
+        path: format!("{}/{:?}/{}", ASSETS_DIR, audio.platform, filename),
         audio: audio.clone(),
     })
+}
+
+const CONFIG_FILE: &str = "musicfree.json";
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Config {
+    pub audios: Vec<LocalAudio>,
+}
+
+pub fn get_config_path(app_dir: PathBuf) -> PathBuf {
+    app_dir.join(CONFIG_FILE)
 }

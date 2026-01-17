@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use musicfree::Audio;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
+
+use crate::api::{Config, get_config_path};
 mod api;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -11,7 +13,7 @@ struct LocalAudio {
     audio: Audio,
 }
 #[tauri::command]
-async fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
+fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
     let app_data_dir = app_handle
         .path()
         .app_data_dir()
@@ -31,12 +33,31 @@ async fn extract_audios(url: &str) -> Result<Vec<Audio>, String> {
 }
 
 #[tauri::command]
+fn get_config(app_handle: tauri::AppHandle) -> Result<Config, String> {
+    let dir = app_dir(app_handle)?;
+    let p = get_config_path(dir);
+    if !p.exists() {
+        return Ok(Config::default());
+    }
+    let s = std::fs::read_to_string(p).map_err(|e| e.to_string())?;
+    let config: Config = serde_json::from_str(&s).map_err(|e| e.to_string())?;
+    Ok(config)
+}
+
+#[tauri::command]
+fn save_config(config: Config, app_handle: tauri::AppHandle) -> Result<(), String> {
+    let dir = app_dir(app_handle)?;
+    let s = serde_json::to_string_pretty(&config).map_err(|e| e.to_string())?;
+    std::fs::write(get_config_path(dir), s).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 async fn download_audio(
     mut audio: Audio,
     app_handle: tauri::AppHandle,
 ) -> Result<LocalAudio, String> {
-    let dir = app_dir(app_handle).await.map_err(|e| e.to_string())?;
-
+    let dir = app_dir(app_handle).map_err(|e| e.to_string())?;
 
     api::download_audio(&mut audio, dir)
         .await
@@ -47,7 +68,7 @@ pub struct FileInfo {}
 
 #[tauri::command]
 async fn read_file(path: &str, app_handle: tauri::AppHandle) -> Result<Vec<u8>, String> {
-    let dir = app_dir(app_handle).await.map_err(|e| e.to_string())?;
+    let dir = app_dir(app_handle).map_err(|e| e.to_string())?;
     let path = dir.join(path);
     let bin = std::fs::read(path).map_err(|e| e.to_string())?;
     Ok(bin)
@@ -63,7 +84,9 @@ pub fn run() {
             extract_audios,
             app_dir,
             read_file,
-            download_audio
+            download_audio,
+            get_config,
+            save_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
