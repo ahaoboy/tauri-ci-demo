@@ -1,6 +1,6 @@
-use std::path::PathBuf;
 use musicfree::Audio;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use tauri::Manager;
 
 use crate::api::{Config, get_config_path};
@@ -87,6 +87,7 @@ async fn read_file(path: &str, app_handle: tauri::AppHandle) -> Result<Vec<u8>, 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())

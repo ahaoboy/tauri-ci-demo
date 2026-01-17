@@ -1,0 +1,19 @@
+{
+  "identifier": "desktop-capability",
+  "platforms": [
+    "macOS",
+    "windows",
+    "linux"
+  ],
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "fs:read-all",
+    "fs:write-all",
+    "clipboard-manager:default",
+    "clipboard-manager:allow-write-text"
+  ]
+}

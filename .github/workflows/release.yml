@@ -1,37 +1,90 @@
-name: 'publish'
+name: "publish"
 
 on:
   push:
     branches:
       - release
+  workflow_dispatch:
 
-# This workflow will trigger on each push to the `release` branch to create or update a GitHub release, build your app, and upload the artifacts to the release.
+# This workflow will trigger on each push to `release` branch to create or update a GitHub release, build your app, and upload artifacts to release.
 
 jobs:
-  publish-tauri:
+  # Desktop builds
+  publish-desktop:
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
         include:
-          # - platform: 'macos-latest' # for Arm based macs (M1 and above).
-          #   args: '--target aarch64-apple-darwin'
-          # - platform: 'macos-latest' # for Intel based macs.
-          #   args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
-          # - platform: 'windows-latest'
-          #   args: ''
+          - platform: "macos-latest" # for Arm based macs (M1 and above).
+            args: "--target aarch64-apple-darwin"
+            os: "macos"
+          - platform: "macos-latest" # for Intel based macs.
+            args: "--target x86_64-apple-darwin"
+            os: "macos"
+          - platform: "ubuntu-22.04" # for Linux
+            args: ""
+            os: "linux"
+          - platform: "windows-latest" # for Windows
+            args: ""
+            os: "windows"
 
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: install frontend dependencies
+        run: pnpm install
+
+      - uses: tauri-apps/tauri-action@ve839bb55b23d177d8cb537c2e10f41decb2d1089
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: v__VERSION__ # action automatically replaces \_\_VERSION\_\_ with app version.
+          releaseName: "v__VERSION__"
+          releaseBody: "See the assets to download and install this version."
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+
+  # Mobile builds (Android)
+  publish-android:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: "17"
+
       - name: Cache NDK
         id: cache-ndk
         uses: actions/cache@v4
@@ -52,24 +105,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10
+
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+      - name: install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt update
+          sudo apt install build-essential libc6-dev libclang-dev gcc-multilib -y
 
       - name: install frontend dependencies
         run: |
-          pnpm install # change this to npm, pnpm or bun depending on which one you use.
+          pnpm install
           pnpm tauri android init
 
       - name: setup Android signing
@@ -80,69 +133,27 @@ jobs:
           echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
           base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
           echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install build-essential libc6-dev libclang-dev gcc-multilib -y
-      - uses: tauri-apps/tauri-action@e839bb55b23d177d8cb537c2e10f41decb2d1089
+
+      - name: Build Android APK
+        uses: tauri-apps/tauri-action@e839bb55b23d177d8cb537c2e10f41decb2d1089
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
-          args: ${{ matrix.args }}
           mobile: android
-          uploadWorkflowArtifacts: true
-          uploadPlainBinary: true
+          uploadWorkflowArtifacts: false
+          uploadPlainBinary: false
 
-      # - name: copy apk
-      #   run: |
-      #     mkdir -p release
-      #     #  find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -exec cp {} release/ \;
-      #     # find src-tauri/gen/android/app/build/outputs -name "*.apk" -exec cp {} release/ \
-
-      #     find src-tauri/gen/android/app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \)
-
-      #     find src-tauri/gen/android/app/build/outputs \
-      #       -type f \( -name "*.apk" -o -name "*.aab" \) \
-      #       -exec cp {} release/ \;
-
-      # - name: Convert AAB to APK
-      #   run: |
-      #     curl -L -o bundletool.jar \
-      #       https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar
-
-      #     mkdir -p release/apks_tmp
-
-      #     for aab in release/*.aab; do
-      #       echo "Processing $aab"
-
-      #       name=$(basename "$aab" .aab)
-
-      #       java -jar bundletool.jar build-apks \
-      #         --bundle="$aab" \
-      #         --output="release/apks_tmp/${name}.apks" \
-      #         --mode=universal
-
-      #       unzip -o "release/apks_tmp/${name}.apks" -d "release/apks_tmp/${name}"
-
-      #       cp "release/apks_tmp/${name}/universal.apk" \
-      #         "release/${name}.apk"
-      #     done
-
-      #     ls -lh release
-
-
-      - uses: ncipollo/release-action@v1
+      - name: Upload Android artifacts to release
+        uses: ncipollo/release-action@v1
         if: github.ref == 'refs/heads/release'
         with:
-          artifacts: "release/*"
+          artifacts: "src-tauri/gen/android/app/build/outputs/apk/**/*.apk"
           allowUpdates: true
-          tag: "nightly"
-          name: "nightly"
+          tag: "v__VERSION__"
+          name: "v__VERSION__"
           token: ${{ secrets.GITHUB_TOKEN }}
