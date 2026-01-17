@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LocalAudio } from '../types';
 import { formatTime } from '../utils';
+import { get_loacl_url } from '../api';
 import './AudioPlayer.css';
 
 interface AudioPlayerProps {
@@ -34,6 +35,27 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onNext,
   onPrevious,
 }) => {
+  const [coverUrl, setCoverUrl] = useState<string>('');
+
+  // Load cover URL when currentAudio changes
+  useEffect(() => {
+    const loadCoverUrl = async () => {
+      if (currentAudio?.cover_path) {
+        try {
+          const url = await get_loacl_url(currentAudio.cover_path);
+          setCoverUrl(url);
+          console.log('🖼️ AudioPlayer: Loaded local cover:', currentAudio.audio.title, url);
+        } catch (error) {
+          console.error('AudioPlayer: Failed to load cover URL:', error);
+          setCoverUrl('');
+        }
+      } else {
+        setCoverUrl('');
+      }
+    };
+
+    loadCoverUrl();
+  }, [currentAudio]);
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = (parseFloat(e.target.value) / 100) * duration;
     onSeek(newTime);
@@ -59,13 +81,35 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   return (
     <div className="audio-player">
       <div className="audio-info">
-        {currentAudio.audio.cover && (
-          <img
-            src={currentAudio.audio.cover}
-            alt="Album cover"
-            className="album-cover"
-          />
-        )}
+        {(() => {
+          if (coverUrl) {
+            return (
+              <img
+                src={coverUrl}
+                alt="Album cover"
+                className="album-cover"
+                key={coverUrl}
+                onLoad={() => console.log('🖼️ AudioPlayer: Local cover loaded successfully')}
+                onError={() => console.log('❌ AudioPlayer: Local cover failed to load')}
+              />
+            );
+          } else if (currentAudio.audio.cover) {
+            return (
+              <img
+                src={currentAudio.audio.cover}
+                alt="Album cover"
+                className="album-cover"
+                style={{ opacity: 0.6 }}
+              />
+            );
+          } else {
+            return (
+              <div className="album-cover-placeholder">
+                <div className="no-cover">🎵</div>
+              </div>
+            );
+          }
+        })()}
         <div className="track-info">
           <h3 className="track-title">{currentAudio.audio.title}</h3>
           <p className="track-artist">{currentAudio.audio.author.join(', ')}</p>

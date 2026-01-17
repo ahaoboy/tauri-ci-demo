@@ -17,6 +17,7 @@ export type Audio = {
 export type LocalAudio = {
   audio: Audio;
   path: string;
+  cover_path: string
 }
 
 export type Config = {
@@ -95,9 +96,13 @@ export function app_dir(): Promise<string> {
   return invoke("app_dir");
 }
 
-export async function get_play_url(audio: LocalAudio): Promise<string> {
+export function download_cover(audio: Audio): Promise<string | null> {
+  return invoke("download_cover", { audio });
+}
+
+export async function get_loacl_url(path: string): Promise<string> {
   const appDataDirPath: string = await invoke("app_dir");
-  const localPath = await join(appDataDirPath, audio.path);
+  const localPath = await join(appDataDirPath, path);
   const assetUrl = convertFileSrc(localPath);
   return assetUrl
 }

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { LocalAudio } from '../types';
-import { get_play_url } from '../api';
+import { get_loacl_url } from '../api';
 
 export interface AudioPlayerState {
   isPlaying: boolean;
@@ -38,7 +38,7 @@ export const useAudioPlayer = () => {
 
   const play = useCallback(async (audio: LocalAudio, playlist: LocalAudio[] = []) => {
     try {
-      const url = await get_play_url(audio);
+      const url = await get_loacl_url(audio.path);
       if (audioRef.current) {
         audioRef.current.src = url;
         audioRef.current.volume = state.volume;

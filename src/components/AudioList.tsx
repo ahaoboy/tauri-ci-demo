@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LocalAudio } from '../types';
 import { formatDuration, formatDate } from '../utils';
+import { get_loacl_url } from '../api';
 import './AudioList.css';
 
 interface AudioListProps {
@@ -18,6 +19,39 @@ export const AudioList: React.FC<AudioListProps> = ({
   onPlay,
   onDelete,
 }) => {
+  const [coverUrls, setCoverUrls] = useState<Map<string, string>>(new Map());
+
+  // Load cover URLs when component mounts or audios change
+  useEffect(() => {
+    const loadCoverUrls = async () => {
+      const newCoverUrls = new Map<string, string>();
+      
+      for (const audio of audios) {
+        if (audio.cover_path && !coverUrls.has(audio.audio.id)) {
+          try {
+            const coverUrl = await get_loacl_url(audio.cover_path);
+            newCoverUrls.set(audio.audio.id, coverUrl);
+          } catch (error) {
+            console.error(`Failed to load cover URL for ${audio.audio.title}:`, error);
+          }
+        }
+      }
+      
+      if (newCoverUrls.size > 0) {
+        setCoverUrls(prev => {
+          const updated = new Map(prev);
+          newCoverUrls.forEach((url, id) => {
+            updated.set(id, url);
+          });
+          return updated;
+        });
+      }
+    };
+    
+    if (audios.length > 0) {
+      loadCoverUrls();
+    }
+  }, [audios]);
   const isCurrentlyPlaying = (audio: LocalAudio) => {
     return currentAudio?.audio.id === audio.audio.id && isPlaying;
   };
@@ -44,15 +78,35 @@ export const AudioList: React.FC<AudioListProps> = ({
             className={`audio-item ${isCurrentlyPlaying(audio) ? 'playing' : ''}`}
           >
             <div className="audio-item-main" onClick={() => onPlay(audio, audios)}>
-              {audio.audio.cover ? (
-                <img
-                  src={audio.audio.cover}
-                  alt="Cover"
-                  className="audio-cover"
-                />
-              ) : (
-                <div className="audio-cover-placeholder">🎵</div>
-              )}
+              {(() => {
+                const localCoverUrl = coverUrls.get(audio.audio.id);
+                
+                if (localCoverUrl) {
+                  return (
+                    <img
+                      src={localCoverUrl}
+                      alt="Cover"
+                      className="audio-cover"
+                      key={`${audio.audio.id}-${localCoverUrl}`}
+                      onLoad={() => console.log('🖼️ Local cover loaded:', audio.audio.title)}
+                      onError={() => console.log('❌ Local cover failed:', audio.audio.title)}
+                    />
+                  );
+                } else if (audio.audio.cover) {
+                  return (
+                    <img
+                      src={audio.audio.cover}
+                      alt="Cover"
+                      className="audio-cover"
+                      style={{ opacity: 0.6 }}
+                    />
+                  );
+                } else {
+                  return (
+                    <div className="audio-cover-placeholder">🎵</div>
+                  );
+                }
+              })()}
 
               <div className="audio-details">
                 <h3 className="audio-title">{audio.audio.title}</h3>

@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-
 use musicfree::Audio;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
@@ -10,6 +9,7 @@ mod api;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct LocalAudio {
     path: String,
+    cover_path: Option<String>,
     audio: Audio,
 }
 #[tauri::command]
@@ -64,6 +64,16 @@ async fn download_audio(
         .map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn download_cover(
+    audio: Audio,
+    app_handle: tauri::AppHandle,
+) -> Result<Option<String>, String> {
+    let dir = app_dir(app_handle).map_err(|e| e.to_string())?;
+
+    Ok(api::download_cover(&audio, dir).await)
+}
+
 pub struct FileInfo {}
 
 #[tauri::command]
@@ -85,6 +95,7 @@ pub fn run() {
             app_dir,
             read_file,
             download_audio,
+            download_cover,
             get_config,
             save_config,
         ])

@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Audio } from '../types';
 import { useAppStore, useDownloadState } from '../store';
 import { formatDuration, formatDate } from '../utils';
+import { download_cover, get_loacl_url } from '../api';
 import './DownloadPage.css';
 
 interface DownloadItem extends Audio {
   isDownloading: boolean;
   isDownloaded: boolean;
   downloadError?: string;
+  coverUrl?: string;
+  coverLoading?: boolean;
 }
 
 export const DownloadPage: React.FC = () => {
   const [url, setUrl] = useState('');
   const [selectedAudios, setSelectedAudios] = useState<Set<string>>(new Set());
+  const [coverUrls, setCoverUrls] = useState<Map<string, string>>(new Map());
 
   const { extractedAudios, extractLoading, extractError, downloadQueue } = useDownloadState();
   const { extractAudios, downloadAudio, clearExtractedAudios } = useAppStore();
@@ -20,11 +24,15 @@ export const DownloadPage: React.FC = () => {
   // Convert extracted audios to download items with status
   const audios: DownloadItem[] = extractedAudios.map(audio => {
     const downloadStatus = downloadQueue.find(item => item.audioId === audio.id);
+    const coverUrl = coverUrls.get(audio.id);
+    
     return {
       ...audio,
       isDownloading: downloadStatus?.status === 'downloading',
       isDownloaded: downloadStatus?.status === 'completed',
       downloadError: downloadStatus?.status === 'error' ? 'Download failed' : undefined,
+      coverUrl: coverUrl,
+      coverLoading: audio.cover ? !coverUrl : false, // Loading if cover exists but no URL yet
     };
   });
 
@@ -35,7 +43,55 @@ export const DownloadPage: React.FC = () => {
 
     clearExtractedAudios();
     setSelectedAudios(new Set());
+    setCoverUrls(new Map());
     await extractAudios(url);
+  };
+
+  // Auto-download covers when audios are extracted
+  useEffect(() => {
+    if (extractedAudios.length > 0) {
+      const autoDownloadCovers = async () => {
+        console.log('🔄 Starting auto-download of covers for', extractedAudios.length, 'audios');
+        
+        for (const audio of extractedAudios) {
+          // Download cover if not already downloaded
+          if (audio.cover && !coverUrls.has(audio.id)) {
+            try {
+              await handleDownloadCover(audio);
+            } catch (error) {
+              console.error(`❌ Failed to auto-download cover for ${audio.title}:`, error);
+            }
+          }
+        }
+      };
+      
+      autoDownloadCovers();
+    }
+  }, [extractedAudios, coverUrls]);
+
+  const handleDownloadCover = async (audio: Audio) => {
+    if (!audio.cover) return;
+    
+    try {
+      console.log('🔄 Downloading cover for:', audio.title, 'from:', audio.cover);
+      const coverPath = await download_cover(audio);
+      console.log('📁 Cover path received:', coverPath);
+      
+      if (coverPath) {
+        const coverUrl = await get_loacl_url(coverPath);
+        console.log('🌐 Cover URL generated:', coverUrl);
+        setCoverUrls(prev => {
+          const newMap = new Map(prev).set(audio.id, coverUrl);
+          console.log('🗂️ Updated coverUrls:', Array.from(newMap.entries()));
+          return newMap;
+        });
+        console.log('✅ Cover downloaded successfully for', audio.title);
+      } else {
+        console.log('⚠️ No cover path returned for', audio.title);
+      }
+    } catch (error) {
+      console.error('❌ Failed to download cover for', audio.title, ':', error);
+    }
   };
 
   const handleDownload = async (audio: DownloadItem) => {
@@ -82,6 +138,7 @@ export const DownloadPage: React.FC = () => {
     console.log('🔄 Resetting download status for all audios');
     clearExtractedAudios();
     setSelectedAudios(new Set());
+    setCoverUrls(new Map());
   };
 
   const checkDownloadStatus = () => {
@@ -93,6 +150,17 @@ export const DownloadPage: React.FC = () => {
 
   const availableAudios = audios.filter(audio => !audio.isDownloaded);
   const allSelected = availableAudios.length > 0 && selectedAudios.size === availableAudios.length;
+
+  // Debug: log current state
+  useEffect(() => {
+    console.log('🎯 Current audios state:', audios.map(a => ({
+      title: a.title,
+      hasCoverUrl: !!a.coverUrl,
+      coverUrl: a.coverUrl,
+      originalCover: a.cover,
+      coverLoading: a.coverLoading
+    })));
+  }, [audios]);
 
   return (
     <div className="download-page">
@@ -178,13 +246,32 @@ export const DownloadPage: React.FC = () => {
                   )}
                 </div>
 
-                {audio.cover && (
-                  <img
-                    src={audio.cover}
-                    alt="Cover"
-                    className="audio-cover"
-                  />
-                )}
+                <div className="audio-cover-container">
+                  {audio.coverUrl ? (
+                    <img
+                      src={audio.coverUrl}
+                      alt="Cover"
+                      className="audio-cover"
+                      key={`${audio.id}-${audio.coverUrl}`} // Force re-render when coverUrl changes
+                      onLoad={() => console.log('🖼️ Cover loaded successfully:', audio.title, audio.coverUrl)}
+                      onError={() => console.log('❌ Cover failed to load:', audio.title, audio.coverUrl)}
+                    />
+                  ) : audio.cover ? (
+                    <div className="audio-cover-placeholder loading">
+                      <div className="loading-spinner">⏳</div>
+                      <img
+                        src={audio.cover}
+                        alt="Remote Cover"
+                        className="audio-cover remote"
+                        style={{ opacity: 0.6 }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="audio-cover-placeholder">
+                      <div className="no-cover">🎵</div>
+                    </div>
+                  )}
+                </div>
 
                 <div className="audio-info">
                   <h3 className="audio-title">{audio.title}</h3>

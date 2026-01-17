@@ -1,22 +1,23 @@
-use std::path::PathBuf;
-
+use crate::LocalAudio;
 use musicfree::Audio;
 use serde::{Deserialize, Serialize};
-use tokio::fs;
-
-use crate::LocalAudio;
+use std::path::{Path, PathBuf};
 
 const ASSETS_DIR: &str = "assets";
+const AUDIOS_DIR: &str = "audios";
+const COVERS_DIR: &str = "covers";
 
-pub async fn download_audio(audio: &mut Audio, app_dir: PathBuf) -> anyhow::Result<LocalAudio> {
-    let assets_dir = app_dir
-        .join(ASSETS_DIR)
-        .join(format!("{:?}", audio.platform));
-
-    if !assets_dir.exists() {
-        fs::create_dir_all(&assets_dir).await?;
+fn write<P: AsRef<Path>, C: AsRef<[u8]>>(p: P, c: C) -> std::io::Result<()> {
+    let p = p.as_ref();
+    if let Some(d) = p.parent()
+        && !d.exists()
+    {
+        std::fs::create_dir_all(d)?;
     }
-    audio.platform.extractor().download(audio).await?;
+    std::fs::write(p, c)
+}
+
+pub async fn download_audio(audio: &Audio, app_dir: PathBuf) -> anyhow::Result<LocalAudio> {
     let id = format!("{:x}", md5::compute(&audio.download_url));
     let filename = format!(
         "{}{}",
@@ -27,16 +28,58 @@ pub async fn download_audio(audio: &mut Audio, app_dir: PathBuf) -> anyhow::Resu
             .unwrap_or(musicfree::core::AudioFormat::Mp3)
             .extension()
     );
-    let file_path = assets_dir.join(&filename);
-    if let Some(bin) = &audio.binary
-        && !file_path.exists()
-    {
-        fs::write(&file_path, bin).await?;
+    let audio_path = format!(
+        "{}/{:?}/{}/{}",
+        ASSETS_DIR, audio.platform, AUDIOS_DIR, filename
+    );
+    let file_path = app_dir.join(&audio_path);
+
+    if !file_path.exists() {
+        println!("Downloading audio: {}", audio.title);
+        let bin = audio
+            .platform
+            .extractor()
+            .download(&audio.download_url)
+            .await?;
+        write(&file_path, bin)?;
+        println!("Successfully downloaded audio: {}", audio_path);
+    } else {
+        println!(
+            "Audio file already exists, skipping download: {}",
+            audio_path
+        );
     }
+
+    let cover_path = download_cover(audio, app_dir).await;
+
     Ok(LocalAudio {
-        path: format!("{}/{:?}/{}", ASSETS_DIR, audio.platform, filename),
+        path: audio_path,
         audio: audio.clone(),
+        cover_path,
     })
+}
+
+pub async fn download_cover(audio: &Audio, app_dir: PathBuf) -> Option<String> {
+    let Some(cover_url) = &audio.cover else {
+        return None;
+    };
+    let Some(filename) = cover_url.split("/").last() else {
+        return None;
+    };
+    let cover_path = format!(
+        "{}/{:?}/{}/{}",
+        ASSETS_DIR, audio.platform, COVERS_DIR, filename
+    );
+    let full_cover_path = app_dir.join(&cover_path);
+    if full_cover_path.exists() {
+        return Some(cover_path);
+    }
+    if let Ok(cover_data) = audio.platform.extractor().download_cover(cover_url).await
+        && let Ok(_) = write(&full_cover_path, &cover_data)
+    {
+        return Some(cover_path);
+    }
+    None
 }
 
 const CONFIG_FILE: &str = "musicfree.json";

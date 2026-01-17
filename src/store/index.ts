@@ -6,7 +6,7 @@ import {
   extract_audios,
   download_audio_and_update_config,
   delete_local_audio,
-  get_play_url
+  get_loacl_url
 } from '../api';
 
 interface AppStore extends AppState {
@@ -125,7 +125,7 @@ export const useAppStore = create<AppStore>()(
       // Player Actions
       playAudio: async (audio, playlist = []) => {
         try {
-          const url = await get_play_url(audio);
+          const url = await get_loacl_url(audio.path);
           const audioElement = document.querySelector('audio') as HTMLAudioElement;
 
           if (audioElement) {
