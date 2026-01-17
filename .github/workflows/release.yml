@@ -70,6 +70,8 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
+          uploadWorkflowArtifacts: false
+          uploadPlainBinary: false
 
   # Mobile builds (Android)
   publish-android:

@@ -9,8 +9,8 @@
     "main"
   ],
   "permissions": [
+    "updater:default",
     "core:default",
-    "opener:default",
     "fs:read-all",
     "fs:write-all",
     "clipboard-manager:default",
