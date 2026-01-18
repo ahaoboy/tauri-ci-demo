@@ -119,19 +119,9 @@ jobs:
           tagName: app-v__VERSION__
           releaseName: "App v__VERSION__"
           releaseBody: "See the assets to download this version and install."
-          releaseDraft: ${{ matrix.mobile != 'android' }}
-          prerelease: false
           args: ${{ matrix.args }}
           mobile: ${{ matrix.mobile }}
           uploadWorkflowArtifacts: true
           uploadPlainBinary: true
-
-      # - name: Upload Android artifacts to release
-      #   if: matrix.mobile == 'android' && github.ref == 'refs/heads/release'
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     artifacts: "src-tauri/gen/android/app/build/outputs/apk/**/*.apk"
-      #     allowUpdates: true
-      #     tag: "v__VERSION__"
-      #     name: "v__VERSION__"
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+          releaseDraft: false
+          prerelease: false
