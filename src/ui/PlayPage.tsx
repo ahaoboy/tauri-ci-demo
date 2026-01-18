@@ -1,18 +1,20 @@
 import { List, Avatar } from "antd-mobile"
 import { useEffect, useState } from "react"
 import { get_config, get_loacl_url, LocalAudio } from "../api"
+import { useAudio } from "../App"
 
 export const PlayPage = () => {
   const [audios, setAudios] = useState<LocalAudio[]>([])
   const [loading, setLoading] = useState(true)
   const [coverUrls, setCoverUrls] = useState<Record<string, string>>({})
+  const { playAudio } = useAudio()
 
   useEffect(() => {
     const loadAudios = async () => {
       try {
         const config = await get_config()
         setAudios(config.audios || [])
-        
+
         const urlMap: Record<string, string> = {}
         await Promise.all(
           (config.audios || []).map(async (audio) => {
@@ -35,6 +37,10 @@ export const PlayPage = () => {
     loadAudios()
   }, [])
 
+  const handleAudioClick = (audio: LocalAudio) => {
+    playAudio(audio,)
+  }
+
   return (
     <List header={`本地音频 (${audios.length})`}>
       {loading ? (
@@ -45,6 +51,7 @@ export const PlayPage = () => {
         audios.map((audio) => (
           <List.Item
             key={audio.audio.id}
+            onClick={() => handleAudioClick(audio)}
             prefix={
               <Avatar
                 src={coverUrls[audio.audio.id] || ''}
