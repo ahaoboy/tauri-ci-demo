@@ -1,5 +1,5 @@
 use crate::LocalAudio;
-use musicfree::Audio;
+use musicfree::{Audio, Platform};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -50,7 +50,11 @@ pub async fn download_audio(audio: &Audio, app_dir: PathBuf) -> anyhow::Result<L
         );
     }
 
-    let cover_path = download_cover(audio, app_dir).await;
+    let cover_path = if let Some(url) = &audio.cover {
+        download_cover(&url, audio.platform.clone(), app_dir).await
+    } else {
+        None
+    };
 
     Ok(LocalAudio {
         path: audio_path,
@@ -59,22 +63,20 @@ pub async fn download_audio(audio: &Audio, app_dir: PathBuf) -> anyhow::Result<L
     })
 }
 
-pub async fn download_cover(audio: &Audio, app_dir: PathBuf) -> Option<String> {
-    let Some(cover_url) = &audio.cover else {
-        return None;
-    };
+pub async fn download_cover(
+    cover_url: &str,
+    platform: Platform,
+    app_dir: PathBuf,
+) -> Option<String> {
     let Some(filename) = cover_url.split("/").last() else {
         return None;
     };
-    let cover_path = format!(
-        "{}/{:?}/{}/{}",
-        ASSETS_DIR, audio.platform, COVERS_DIR, filename
-    );
+    let cover_path = format!("{}/{:?}/{}/{}", ASSETS_DIR, platform, COVERS_DIR, filename);
     let full_cover_path = app_dir.join(&cover_path);
     if full_cover_path.exists() {
         return Some(cover_path);
     }
-    if let Ok(cover_data) = audio.platform.extractor().download_cover(cover_url).await
+    if let Ok(cover_data) = platform.extractor().download_cover(cover_url).await
         && let Ok(_) = write(&full_cover_path, &cover_data)
     {
         return Some(cover_path);

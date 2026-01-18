@@ -1,4 +1,4 @@
-use musicfree::Audio;
+use musicfree::{Audio, Platform, Playlist};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tauri::Manager;
@@ -7,11 +7,20 @@ use crate::api::{Config, get_config_path};
 mod api;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct LocalAudio {
-    path: String,
-    cover_path: Option<String>,
-    audio: Audio,
+pub struct LocalAudio {
+    pub path: String,
+    pub cover_path: Option<String>,
+    pub audio: Audio,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LocalPlaylist {
+    pub cover_path: Option<String>,
+    pub cover: Option<String>,
+    pub audios: Vec<LocalAudio>,
+    pub platform: Platform,
+}
+
 #[tauri::command]
 fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
     let app_data_dir = app_handle
@@ -28,7 +37,7 @@ fn app_dir(app_handle: tauri::AppHandle) -> Result<PathBuf, String> {
 }
 
 #[tauri::command]
-async fn extract_audios(url: &str) -> Result<Vec<Audio>, String> {
+async fn extract_audios(url: &str) -> Result<Playlist, String> {
     musicfree::extract(url).await.map_err(|e| e.to_string())
 }
 
@@ -66,12 +75,13 @@ async fn download_audio(
 
 #[tauri::command]
 async fn download_cover(
-    audio: Audio,
+    url: &str,
+    platform: Platform,
     app_handle: tauri::AppHandle,
 ) -> Result<Option<String>, String> {
     let dir = app_dir(app_handle).map_err(|e| e.to_string())?;
 
-    Ok(api::download_cover(&audio, dir).await)
+    Ok(api::download_cover(url, platform, dir).await)
 }
 
 pub struct FileInfo {}

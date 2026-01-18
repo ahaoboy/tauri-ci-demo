@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
-import { Audio, LocalAudio, AppState } from '../types';
+import { Audio, LocalAudio, AppState, Playlist } from '../types';
 import {
   get_local_audios,
   extract_audios,
@@ -244,8 +244,9 @@ export const useAppStore = create<AppStore>()(
         set({ extractLoading: true, extractError: '', extractedAudios: [] });
         try {
           console.log('🔄 Extracting audios from:', url);
-          const audios = await extract_audios(url);
-          console.log('✅ Extracted', audios.length, 'audios');
+          const playlist = await extract_audios(url);
+          const audios = playlist.audios;
+          console.log('✅ Extracted', audios.length, 'audios from playlist:', playlist.title);
           set({
             extractedAudios: audios,
             extractLoading: false,

@@ -1,5 +1,4 @@
-import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { join } from "@tauri-apps/api/path";
+import { invoke } from "@tauri-apps/api/core";
 
 export type Audio = {
   id: string;
@@ -17,14 +16,28 @@ export type Audio = {
 export type LocalAudio = {
   audio: Audio;
   path: string;
-  cover_path: string
+  cover_path: string | null;
+}
+
+export type Playlist = {
+  title?: string;
+  cover?: string;
+  audios: Audio[];
+  platform: string;
+}
+
+export type LocalPlaylist = {
+  cover_path: string | null;
+  cover?: string;
+  audios: LocalAudio[];
+  platform: string;
 }
 
 export type Config = {
   audios: LocalAudio[];
 }
 
-export function extract_audios(url: string): Promise<Audio[]> {
+export function extract_audios(url: string): Promise<Playlist> {
   return invoke("extract_audios", { url })
 }
 
@@ -100,8 +113,8 @@ export function read_file(path: string): Promise<Uint8Array> {
   return invoke("read_file", { path });
 }
 
-export function download_cover(audio: Audio): Promise<string | null> {
-  return invoke("download_cover", { audio });
+export function download_cover(url: string, platform: string): Promise<string | null> {
+  return invoke("download_cover", { url, platform });
 }
 
 // export async function get_loacl_url(path: string): Promise<string> {

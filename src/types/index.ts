@@ -37,4 +37,4 @@ export interface AppState {
   extractError: string;
 }
 
-export type { Audio, LocalAudio, Config } from '../api';
+export type { Audio, LocalAudio, Config, Playlist, LocalPlaylist } from '../api';

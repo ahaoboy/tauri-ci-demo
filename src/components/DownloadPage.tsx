@@ -74,7 +74,7 @@ export const DownloadPage: React.FC = () => {
     
     try {
       console.log('🔄 Downloading cover for:', audio.title, 'from:', audio.cover);
-      const coverPath = await download_cover(audio);
+      const coverPath = await download_cover(audio.cover, audio.platform);
       console.log('📁 Cover path received:', coverPath);
       
       if (coverPath) {
