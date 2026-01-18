@@ -15,6 +15,7 @@ import {
 } from 'antd-mobile-icons'
 import './App.css'
 import { PlayPage } from './ui/PlayPage'
+import { SearchPage } from './ui'
 
 const Bottom: FC = () => {
   const navigate = useNavigate()
@@ -61,7 +62,7 @@ export default () => {
       <div className="app">
         <div className="main-content">
           <Routes>
-            <Route path="/download" element={<div />} />
+            <Route path="/download" element={<SearchPage />} />
             <Route path="/player" element={<PlayPage />} />
             <Route path="/library" element={<div />} />
             <Route path="/settings" element={<SettingsPage />} />
