@@ -69,6 +69,21 @@ body {
   color: #666;
 }
 
+.settings-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   body {

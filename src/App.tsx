@@ -16,6 +16,7 @@ import {
 import './App.css'
 import { PlayPage } from './ui/PlayPage'
 import { SearchPage } from './ui'
+import { SettingsPage } from './ui/SettingPage'
 
 const pageOrder = ['/player', '/library', '/download', '/settings']
 
@@ -60,7 +61,12 @@ const Bottom: FC = () => {
 
 const SWIPE_THRESHOLD = 50
 
-const AppContent: FC = () => {
+interface AppContentProps {
+  themeMode?: 'light' | 'dark' | 'auto';
+  setThemeMode?: (value: 'light' | 'dark' | 'auto') => void;
+}
+
+const AppContent: FC<AppContentProps> = ({ themeMode, setThemeMode }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const touchStartX = useRef<number>(0)
@@ -104,9 +110,9 @@ const AppContent: FC = () => {
   }, [handleEnd])
 
   return (
-    <div 
-      className="app" 
-      onTouchStart={handleTouchStart} 
+    <div
+      className="app"
+      onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
@@ -119,29 +125,17 @@ const AppContent: FC = () => {
           <Route path="/download" element={<SearchPage />} />
           <Route path="/player" element={<PlayPage />} />
           <Route path="/library" element={<h3> lib</h3>} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings" element={<SettingsPage themeMode={themeMode} setThemeMode={setThemeMode} />} />
         </Routes>
       </div>
     </div>
   )
 }
 
-export default () => {
+export default (props: AppContentProps) => {
   return (
     <Router initialEntries={['/player']}>
-      <AppContent />
+      <AppContent {...props} />
     </Router>
-  )
-}
-
-function SettingsPage() {
-  return (
-    <div className="settings-page">
-      <div className="settings-header">
-        <h1>设置</h1>
-        <p>管理应用设置和存储空间</p>
-      </div>
-      <div />
-    </div>
   )
 }
