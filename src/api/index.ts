@@ -309,17 +309,17 @@ export async function extract_audio_metadata(filePath: string): Promise<AudioMet
 
 export async function create_playlist(name: string, platform: string): Promise<LocalPlaylist> {
   const playlist = await invoke<LocalPlaylist>("create_playlist", { name, platform });
-  
+
   const config = await get_config();
   config.playlists.push(playlist);
   await save_config(config);
-  
+
   return playlist;
 }
 
 export async function rename_playlist(playlistId: string, name: string): Promise<void> {
   await invoke("rename_playlist", { playlistId, name });
-  
+
   const config = await get_config();
   const playlist = config.playlists.find(p => p.id === playlistId);
   if (playlist) {
@@ -330,23 +330,23 @@ export async function rename_playlist(playlistId: string, name: string): Promise
 
 export async function delete_playlist(playlistId: string): Promise<boolean> {
   const success = await invoke<boolean>("delete_playlist", { playlistId });
-  
+
   if (success) {
     const config = await get_config();
     config.playlists = config.playlists.filter(p => p.id !== playlistId);
     await save_config(config);
   }
-  
+
   return success;
 }
 
 export async function add_audio_to_playlist(playlistId: string, audioId: string): Promise<void> {
   await invoke("add_audio_to_playlist", { playlistId, audioId });
-  
+
   const config = await get_config();
   const playlist = config.playlists.find(p => p.id === playlistId);
   const audio = config.audios.find(a => a.audio.id === audioId);
-  
+
   if (playlist && audio && !playlist.audios.some(a => a.audio.id === audioId)) {
     playlist.audios.push(audio);
     await save_config(config);
@@ -355,7 +355,7 @@ export async function add_audio_to_playlist(playlistId: string, audioId: string)
 
 export async function remove_audio_from_playlist(playlistId: string, audioId: string): Promise<boolean> {
   const success = await invoke<boolean>("remove_audio_from_playlist", { playlistId, audioId });
-  
+
   if (success) {
     const config = await get_config();
     const playlist = config.playlists.find(p => p.id === playlistId);
@@ -364,13 +364,13 @@ export async function remove_audio_from_playlist(playlistId: string, audioId: st
       await save_config(config);
     }
   }
-  
+
   return success;
 }
 
 export async function reorder_playlist(playlistId: string, audioId: string, newPosition: number): Promise<void> {
   await invoke("reorder_playlist", { playlistId, audioId, new_position: newPosition });
-  
+
   const config = await get_config();
   const playlist = config.playlists.find(p => p.id === playlistId);
   if (playlist) {
@@ -386,21 +386,21 @@ export async function reorder_playlist(playlistId: string, audioId: string, newP
 
 export async function duplicate_playlist(playlistId: string): Promise<LocalPlaylist> {
   const newPlaylist = await invoke<LocalPlaylist>("duplicate_playlist", { playlistId });
-  
+
   const config = await get_config();
   config.playlists.push(newPlaylist);
   await save_config(config);
-  
+
   return newPlaylist;
 }
 
 export async function merge_playlists(targetId: string, sourceId: string): Promise<void> {
   await invoke("merge_playlists", { target_id: targetId, source_id: sourceId });
-  
+
   const config = await get_config();
   const target = config.playlists.find(p => p.id === targetId);
   const source = config.playlists.find(p => p.id === sourceId);
-  
+
   if (target && source) {
     for (const audio of source.audios) {
       if (!target.audios.some(a => a.audio.id === audio.audio.id)) {
@@ -413,7 +413,7 @@ export async function merge_playlists(targetId: string, sourceId: string): Promi
 
 export async function shuffle_playlist(playlistId: string): Promise<void> {
   await invoke("shuffle_playlist", { playlistId });
-  
+
   const config = await get_config();
   const playlist = config.playlists.find(p => p.id === playlistId);
   if (playlist) {
@@ -438,10 +438,10 @@ export async function cleanup_cache(maxSizeMb: number): Promise<CleanupResult> {
 
 export async function import_local_audios(filePaths: string[]): Promise<number> {
   const importedCount = await invoke<number>("import_local_audios", { file_paths: filePaths });
-  
+
   if (importedCount > 0) {
     console.log(`✅ Imported ${importedCount} local audio files`);
   }
-  
+
   return importedCount;
 }

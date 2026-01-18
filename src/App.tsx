@@ -14,6 +14,7 @@ import {
   UnorderedListOutline,
 } from 'antd-mobile-icons'
 import './App.css'
+import { PlayPage } from './ui/PlayPage'
 
 const Bottom: FC = () => {
   const navigate = useNavigate()
@@ -61,7 +62,7 @@ export default () => {
         <div className="main-content">
           <Routes>
             <Route path="/download" element={<div />} />
-            <Route path="/player" element={<PlayerPageWrapper />} />
+            <Route path="/player" element={<PlayPage />} />
             <Route path="/library" element={<div />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
