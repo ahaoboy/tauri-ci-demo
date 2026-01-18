@@ -1,4 +1,4 @@
-import { type FC, useRef, useCallback, useState, createContext, useContext } from 'react'
+import { type FC, useRef, useCallback, useState, createContext, useContext, useEffect } from 'react'
 import { TabBar } from 'antd-mobile'
 import {
   Route,
@@ -13,6 +13,7 @@ import {
   SetOutline,
   UnorderedListOutline,
 } from 'antd-mobile-icons'
+import { mediaControls, PlaybackStatus, type MediaMetadata } from 'tauri-plugin-media-api'
 import './App.css'
 import { PlayPage } from './ui/PlayPage'
 import { SearchPage } from './ui'
@@ -60,6 +61,25 @@ const AppContent: FC<AppContentProps> = ({ themeMode, setThemeMode }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
+  useEffect(() => {
+    mediaControls.initialize('com.tauri-ci-demo.app', 'MusicFree')
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    if (currentAudio) {
+      const metadata: MediaMetadata = {
+        title: currentAudio.audio.title,
+        artist: currentAudio.audio.author.join(', '),
+        duration: currentAudio.audio.duration || 0,
+      }
+      mediaControls.updateNowPlaying(metadata, {
+        status: isPlaying ? PlaybackStatus.Playing : PlaybackStatus.Paused,
+        position: 0,
+      }).catch(console.error)
+    }
+  }, [currentAudio, isPlaying])
+
   const playAudio = useCallback(async (audio: LocalAudio) => {
     try {
       setCurrentAudio(audio)
@@ -86,6 +106,7 @@ const AppContent: FC<AppContentProps> = ({ themeMode, setThemeMode }) => {
     if (audioRef.current) {
       audioRef.current.pause()
     }
+    mediaControls.updatePlaybackStatus(PlaybackStatus.Paused).catch(console.error)
   }, [])
 
   const resumeAudio = useCallback(() => {
@@ -95,6 +116,7 @@ const AppContent: FC<AppContentProps> = ({ themeMode, setThemeMode }) => {
         console.error('Resume failed:', e)
       })
     }
+    mediaControls.updatePlaybackStatus(PlaybackStatus.Playing).catch(console.error)
   }, [])
 
   const togglePlay = useCallback(() => {

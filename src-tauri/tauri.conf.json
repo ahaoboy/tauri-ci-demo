@@ -31,7 +31,8 @@
             "**"
           ]
         }
-      }
+      },
+      "capabilities": ["desktop"]
     }
   },
   "bundle": {

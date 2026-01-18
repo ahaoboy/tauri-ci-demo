@@ -25,3 +25,5 @@ keystore.properties
 *.njsproj
 *.sln
 *.sw?
+
+.agent
