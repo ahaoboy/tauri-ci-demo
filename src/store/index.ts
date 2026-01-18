@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
-import { Audio, LocalAudio, AppState, Playlist } from '../types';
+import { Audio, LocalAudio, AppState } from '../types';
 import {
   get_local_audios,
   extract_audios,
