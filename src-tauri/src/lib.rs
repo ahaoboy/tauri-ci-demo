@@ -101,10 +101,10 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init());
 
     // Only include these plugins on desktop platforms
-    #[cfg(not(any(target_os = "android", target_os = "ios")))]
-    let builder = builder
-        .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}));
+    // #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    // let builder = builder
+    //     .plugin(tauri_plugin_updater::Builder::new().build())
+    //     .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}));
 
     // #[cfg(target_os = "windows")]
     // let builder = builder

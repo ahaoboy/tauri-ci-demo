@@ -6,7 +6,6 @@
     "main"
   ],
   "permissions": [
-    "updater:default",
     "core:default",
     "fs:read-all",
     "fs:write-all",
