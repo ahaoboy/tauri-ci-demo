@@ -73,7 +73,7 @@ const AppLayout: FC = () => {
   } = useAppStore();
 
   // Get current tab from route
-  const currentTab = ROUTE_TO_TAB[location.pathname] || 'music';
+  const currentTab = ROUTE_TO_TAB[location.pathname] || 'playlists';
 
   // Initialize app - load config
   useEffect(() => {

@@ -37,7 +37,7 @@ export const TopNav: FC<TopNavProps> = ({ activeTab, onChange }) => {
           onClick={() => onChange(item.key)}
         >
           <span className="nav-icon">{item.icon}</span>
-          <span className="nav-label">{item.label}</span>
+          {/* <span className="nav-label">{item.label}</span> */}
         </div>
       ))}
     </nav>

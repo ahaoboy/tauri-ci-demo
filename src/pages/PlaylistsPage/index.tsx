@@ -50,12 +50,12 @@ export const PlaylistsPage: FC = () => {
   if (selectedPlaylist) {
     return (
       <div className="page">
-        <div className="detail-header">
+        {/* <div className="detail-header">
           <button className="back-btn" onClick={handleBack}>
             <LeftOutlined />
           </button>
           <span className="detail-title">{selectedPlaylist.id}</span>
-        </div>
+        </div> */}
 
         {selectedPlaylist.audios.length === 0 ? (
           <div className="empty-state">
@@ -67,11 +67,11 @@ export const PlaylistsPage: FC = () => {
           </div>
         ) : (
           <div className="audio-list">
-            <div className="list-header">
+            {/* <div className="list-header">
               <span className="list-title">
                 {selectedPlaylist.audios.length} Tracks
               </span>
-            </div>
+            </div> */}
             {selectedPlaylist.audios.map((audio, index) => (
               <div key={`${audio.audio.id}-${index}`} className="virtual-list-item">
                 <AudioCard
@@ -89,10 +89,10 @@ export const PlaylistsPage: FC = () => {
   // Render playlists grid
   return (
     <div className="page">
-      <div className="page-header">
+      {/* <div className="page-header">
         <h1 className="page-title">Playlists</h1>
         <p className="page-subtitle">Your downloaded playlists</p>
-      </div>
+      </div> */}
 
       {playlists.length === 0 ? (
         <div className="empty-state">

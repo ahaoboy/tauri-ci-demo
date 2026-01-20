@@ -307,10 +307,10 @@ export const SearchPage: FC = () => {
 
   return (
     <div className="page">
-      <div className="page-header">
+      {/* <div className="page-header">
         <h1 className="page-title">Search</h1>
         <p className="page-subtitle">Download from URL</p>
-      </div>
+      </div> */}
 
       <div className="search-group">
         <Input

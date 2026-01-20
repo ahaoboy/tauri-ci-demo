@@ -24,10 +24,10 @@ export const MusicPage: FC = () => {
 
   return (
     <div className="page">
-      <div className="page-header">
+      {/* <div className="page-header">
         <h1 className="page-title">Music</h1>
         <p className="page-subtitle">All downloaded audio tracks</p>
-      </div>
+      </div> */}
 
       {audios.length === 0 ? (
         <div className="empty-state">
@@ -39,9 +39,9 @@ export const MusicPage: FC = () => {
         </div>
       ) : (
         <div className="audio-list">
-          <div className="list-header">
+          {/* <div className="list-header">
             <span className="list-title">{audios.length} Tracks</span>
-          </div>
+          </div> */}
           {audios.map((audio) => (
             <AudioCard
               key={audio.audio.id}

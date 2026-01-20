@@ -34,10 +34,10 @@ export const SettingsPage: FC = () => {
 
   return (
     <div className="page settings-page">
-      <div className="page-header">
+      {/* <div className="page-header">
         <h1 className="page-title">Settings</h1>
         <p className="page-subtitle">Configure app preferences</p>
-      </div>
+      </div> */}
 
       <div className="settings-section">
         <div className="section-title">Theme</div>

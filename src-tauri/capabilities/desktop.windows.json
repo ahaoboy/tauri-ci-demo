@@ -1,0 +1,18 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "desktop-windows",
+  "description": "Desktop capabilities for the main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "fs:read-all",
+    "fs:write-all",
+    "clipboard-manager:default",
+    "clipboard-manager:allow-write-text",
+    "core:window:default",
+    "media:default",
+    "updater:default"
+  ]
+}
