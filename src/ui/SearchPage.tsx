@@ -1,6 +1,6 @@
 import { Form, List, SearchBar, Checkbox, Button, Space, Image } from "antd-mobile"
 import { useRef, useState } from "react"
-import { extract_audios, download_audio_and_update_config, Audio, Playlist } from "../api"
+import { extract_audios, Audio, Playlist, download_audio } from "../api"
 import type { FC, PropsWithChildren } from 'react'
 import type { CheckboxRef } from 'antd-mobile/es/components/checkbox'
 
@@ -87,7 +87,7 @@ export const SearchPage = () => {
 
       for (const audio of selectedAudios) {
         try {
-          await download_audio_and_update_config(audio)
+          await download_audio(audio)
           successCount++
         } catch (error) {
           console.error(`下载失败 ${audio.title}:`, error)

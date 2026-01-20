@@ -70,7 +70,6 @@ const AppContent: FC<AppContentProps> = ({ themeMode, setThemeMode }) => {
     if (currentAudio) {
       const metadata: MediaMetadata = {
         title: currentAudio.audio.title,
-        duration: currentAudio.audio.duration || 0,
       }
       mediaControls.updateNowPlaying(metadata, {
         status: isPlaying ? PlaybackStatus.Playing : PlaybackStatus.Paused,

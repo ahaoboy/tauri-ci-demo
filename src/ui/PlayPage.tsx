@@ -59,11 +59,6 @@ export const PlayPage = () => {
                 fallback={<div style={{ width: '48px', height: '48px', backgroundColor: '#1677ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', borderRadius: '8px' }}>{audio.audio.title.charAt(0)}</div>}
               />
             }
-            description={
-              <div>
-                {audio.audio.duration && <div>{Math.floor(audio.audio.duration / 60)}:{String(audio.audio.duration % 60).padStart(2, '0')}</div>}
-              </div>
-            }
           >
             {audio.audio.title}
           </List.Item>
