@@ -1,4 +1,12 @@
-import { FC, useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
+import { FC, useEffect, useRef, useCallback, createContext, useContext, useState } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  Navigate,
+} from 'react-router-dom';
 import { ConfigProvider, theme, App as AntApp } from 'antd';
 import { TopNav, PlayerCard, Tab } from './components';
 import {
@@ -11,7 +19,22 @@ import { useAppStore } from './store';
 import { useSwipe, SwipeDirection } from './hooks';
 import './styles/index.less';
 
-// Tab order for navigation
+// Route to Tab mapping
+const ROUTE_TO_TAB: Record<string, Tab> = {
+  '/playlists': 'playlists',
+  '/music': 'music',
+  '/search': 'search',
+  '/settings': 'settings',
+};
+
+const TAB_TO_ROUTE: Record<Tab, string> = {
+  playlists: '/playlists',
+  music: '/music',
+  search: '/search',
+  settings: '/settings',
+};
+
+// Tab order for swipe navigation
 const TAB_ORDER: Tab[] = ['playlists', 'music', 'search', 'settings'];
 
 // Navigation context for child pages to report their state
@@ -32,25 +55,10 @@ export const useNavigation = () => {
   return context;
 };
 
-// Render page based on active tab
-const renderPage = (tab: Tab): React.ReactNode => {
-  switch (tab) {
-    case 'playlists':
-      return <PlaylistsPage />;
-    case 'music':
-      return <MusicPage />;
-    case 'search':
-      return <SearchPage />;
-    case 'settings':
-      return <SettingsPage />;
-    default:
-      return <MusicPage />;
-  }
-};
-
-// Main App component
-const App: FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('music');
+// Main layout component with navigation
+const AppLayout: FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Navigation state for detail views
@@ -65,7 +73,10 @@ const App: FC = () => {
     isConfigLoading,
   } = useAppStore();
 
-  // Initialize app - load config and set audio element
+  // Get current tab from route
+  const currentTab = ROUTE_TO_TAB[location.pathname] || 'music';
+
+  // Initialize app - load config
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
@@ -79,6 +90,14 @@ const App: FC = () => {
       setAudioElement(null);
     };
   }, [setAudioElement]);
+
+  // Handle tab change
+  const handleTabChange = useCallback(
+    (tab: Tab) => {
+      navigate(TAB_TO_ROUTE[tab]);
+    },
+    [navigate]
+  );
 
   // Handle swipe gesture for tab switching or back navigation
   const handleSwipe = useCallback(
@@ -94,17 +113,17 @@ const App: FC = () => {
       }
 
       // Normal tab switching
-      const currentIndex = TAB_ORDER.indexOf(activeTab);
+      const currentIndex = TAB_ORDER.indexOf(currentTab);
 
       if (direction === 'left' && currentIndex < TAB_ORDER.length - 1) {
         // Swipe left - go to next tab
-        setActiveTab(TAB_ORDER[currentIndex + 1]);
+        navigate(TAB_TO_ROUTE[TAB_ORDER[currentIndex + 1]]);
       } else if (direction === 'right' && currentIndex > 0) {
         // Swipe right - go to previous tab
-        setActiveTab(TAB_ORDER[currentIndex - 1]);
+        navigate(TAB_TO_ROUTE[TAB_ORDER[currentIndex - 1]]);
       }
     },
-    [activeTab, isInDetailView, onBackFromDetail]
+    [currentTab, isInDetailView, onBackFromDetail, navigate]
   );
 
   // Get swipe handlers
@@ -151,18 +170,34 @@ const App: FC = () => {
     >
       <AntApp>
         <NavigationContext.Provider value={navigationContextValue}>
-          <div
-            className="app"
-            {...swipeHandlers}
-          >
-            <TopNav activeTab={activeTab} onChange={setActiveTab} />
-            <main className="main-content">{renderPage(activeTab)}</main>
+          <div className="app" {...swipeHandlers}>
+            <TopNav activeTab={currentTab} onChange={handleTabChange} />
+            <main className="main-content">
+              <div className="page-transition">
+                <Routes>
+                  <Route path="/" element={<Navigate to="/music" replace />} />
+                  <Route path="/playlists/*" element={<PlaylistsPage />} />
+                  <Route path="/music" element={<MusicPage />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Routes>
+              </div>
+            </main>
             <PlayerCard audio={currentAudio} />
             <audio ref={audioRef} />
           </div>
         </NavigationContext.Provider>
       </AntApp>
     </ConfigProvider>
+  );
+};
+
+// App entry with Router
+const App: FC = () => {
+  return (
+    <BrowserRouter>
+      <AppLayout />
+    </BrowserRouter>
   );
 };
 

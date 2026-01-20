@@ -42,10 +42,100 @@
 @shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 @shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
+// Animation timing (following UI/UX best practices: 150-300ms)
+@transition-fast: 150ms;
+@transition-normal: 200ms;
+@transition-slow: 300ms;
+@ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+@ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+
 // Mobile dimensions
 @nav-height: 56px;
 @player-bar-height: 72px;
 @safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+// Keyframe animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
 
 // Base reset
 * {
@@ -125,17 +215,24 @@ body {
     color: var(--text-secondary);
     font-size: 12px;
     gap: @spacing-xs;
+    transition: color @transition-fast @ease-out, transform @transition-fast @ease-out;
 
     .nav-icon {
       font-size: 20px;
+      transition: transform @transition-fast @ease-out;
     }
 
     &.active {
       color: var(--primary-color);
+
+      .nav-icon {
+        transform: scale(1.1);
+      }
     }
 
     &:active {
-      opacity: 0.7;
+      transform: scale(0.95);
+      opacity: 0.8;
     }
   }
 }
@@ -149,10 +246,16 @@ body {
   padding-bottom: calc(@player-bar-height + @safe-area-bottom);
 }
 
+// Page transition wrapper
+.page-transition {
+  animation: fadeInUp @transition-slow @ease-out;
+}
+
 // Page container
 .page {
   min-height: 100%;
   padding: @spacing-lg;
+  animation: fadeIn @transition-normal @ease-out;
 }
 
 // Page header
@@ -192,9 +295,18 @@ body {
   border: 1px solid var(--border-color);
   cursor: pointer;
   margin-bottom: @spacing-sm;
+  transition: transform @transition-fast @ease-out,
+    box-shadow @transition-fast @ease-out,
+    border-color @transition-fast @ease-out;
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: @shadow-md;
+  }
 
   &:active {
-    opacity: 0.8;
+    transform: scale(0.98);
+    opacity: 0.9;
   }
 
   .audio-cover {
@@ -286,9 +398,19 @@ body {
   border: 1px solid var(--border-color);
   cursor: pointer;
   margin-bottom: @spacing-md;
+  transition: transform @transition-fast @ease-out,
+    box-shadow @transition-fast @ease-out,
+    border-color @transition-fast @ease-out;
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: @shadow-md;
+    transform: translateY(-2px);
+  }
 
   &:active {
-    opacity: 0.8;
+    transform: scale(0.98);
+    opacity: 0.9;
   }
 
   .playlist-cover {
@@ -419,11 +541,32 @@ body {
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: transform @transition-fast @ease-out, opacity @transition-fast @ease-out;
+
+      &:hover {
+        transform: scale(1.05);
+      }
 
       &:active {
-        opacity: 0.8;
+        transform: scale(0.95);
+        opacity: 0.9;
       }
     }
+  }
+
+  // Slide in animation for mini player
+  animation: slideInUp @transition-slow @ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -552,6 +695,17 @@ body {
     border: 2px solid var(--border-color);
     border-radius: @radius-md;
     cursor: pointer;
+    transition: all @transition-fast @ease-out;
+
+    &:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: @shadow-sm;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
 
     &.active {
       border-color: var(--primary-color);
@@ -607,9 +761,16 @@ body {
     color: var(--text-primary);
     cursor: pointer;
     font-size: 18px;
+    transition: all @transition-fast @ease-out;
+
+    &:hover {
+      background: var(--bg-primary);
+      transform: translateX(-2px);
+    }
 
     &:active {
       opacity: 0.7;
+      transform: scale(0.9);
     }
   }
 
