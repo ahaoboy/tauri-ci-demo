@@ -1,4 +1,4 @@
-use crate::{LocalAudio, LocalPlaylist};
+use crate::core::{LocalAudio, LocalPlaylist};
 use musicfree::{Audio, Platform};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};

@@ -73,11 +73,12 @@ export const PlaylistsPage: FC = () => {
               </span>
             </div>
             {selectedPlaylist.audios.map((audio, index) => (
-              <AudioCard
-                key={`${audio.audio.id}-${index}`}
-                audio={audio}
-                onClick={() => handleAudioClick(audio)}
-              />
+              <div key={`${audio.audio.id}-${index}`} className="virtual-list-item">
+                <AudioCard
+                  audio={audio}
+                  onClick={() => handleAudioClick(audio)}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -104,11 +105,12 @@ export const PlaylistsPage: FC = () => {
       ) : (
         <div className="playlist-grid">
           {playlists.map((playlist, index) => (
-            <PlaylistCard
-              key={`${playlist.id}-${index}`}
-              playlist={playlist}
-              onClick={() => handlePlaylistClick(playlist)}
-            />
+            <div key={`${playlist.id}-${index}`} className="virtual-list-item">
+              <PlaylistCard
+                playlist={playlist}
+                onClick={() => handlePlaylistClick(playlist)}
+              />
+            </div>
           ))}
         </div>
       )}

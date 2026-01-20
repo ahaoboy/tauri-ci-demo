@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, memo } from 'react';
 import { PauseCircleFilled, PlayCircleFilled } from '@ant-design/icons';
 import { get_loacl_url, LocalAudio } from '../../api';
 import { useAppStore } from '../../store';
@@ -8,7 +8,7 @@ interface PlayerCardProps {
 }
 
 // Mini player card showing current audio with play/pause controls
-export const PlayerCard: FC<PlayerCardProps> = ({ audio }) => {
+export const PlayerCard: FC<PlayerCardProps> = memo(({ audio }) => {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const { isPlaying, togglePlay } = useAppStore();
 
@@ -59,6 +59,6 @@ export const PlayerCard: FC<PlayerCardProps> = ({ audio }) => {
       </div>
     </div>
   );
-};
+});
 
 export default PlayerCard;

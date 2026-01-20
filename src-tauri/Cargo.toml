@@ -31,6 +31,7 @@ reqwest = { version = "0.13", features = [
 tokio = { version = "1", features = ["full"] }
 regex = "1"
 anyhow = "*"
+thiserror = "1"
 musicfree = { git = "https://github.com/ahaoboy/musicfree", version = "0.1", default-features = false, features = [
   "bilibili",
   # "bindgen",

@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useCallback, createContext, useContext, useState } from 'react';
+import { FC, useEffect, useRef, useCallback, createContext, useContext, useState, Suspense, lazy } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -7,17 +7,16 @@ import {
   useLocation,
   Navigate,
 } from 'react-router-dom';
-import { ConfigProvider, theme, App as AntApp } from 'antd';
+import { ConfigProvider, theme, App as AntApp, Spin } from 'antd';
 import { TopNav, PlayerCard, Tab } from './components';
-import {
-  PlaylistsPage,
-  MusicPage,
-  SearchPage,
-  SettingsPage,
-} from './pages';
 import { useAppStore } from './store';
 import { useSwipe, SwipeDirection } from './hooks';
 import './styles/index.less';
+
+const PlaylistsPage = lazy(() => import('./pages/PlaylistsPage'));
+const MusicPage = lazy(() => import('./pages/MusicPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
 // Route to Tab mapping
 const ROUTE_TO_TAB: Record<string, Tab> = {
@@ -174,13 +173,15 @@ const AppLayout: FC = () => {
             <TopNav activeTab={currentTab} onChange={handleTabChange} />
             <main className="main-content">
               <div className="page-transition">
-                <Routes>
-                  <Route path="/" element={<Navigate to="/music" replace />} />
-                  <Route path="/playlists/*" element={<PlaylistsPage />} />
-                  <Route path="/music" element={<MusicPage />} />
-                  <Route path="/search" element={<SearchPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                </Routes>
+                <Suspense fallback={<div className="loading-container"><Spin size="large" /></div>}>
+                  <Routes>
+                    <Route path="/" element={<Navigate to="/music" replace />} />
+                    <Route path="/playlists/*" element={<PlaylistsPage />} />
+                    <Route path="/music" element={<MusicPage />} />
+                    <Route path="/search" element={<SearchPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                  </Routes>
+                </Suspense>
               </div>
             </main>
             <PlayerCard audio={currentAudio} />
