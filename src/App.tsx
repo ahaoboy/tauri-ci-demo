@@ -70,7 +70,6 @@ const AppContent: FC<AppContentProps> = ({ themeMode, setThemeMode }) => {
     if (currentAudio) {
       const metadata: MediaMetadata = {
         title: currentAudio.audio.title,
-        artist: currentAudio.audio.author.join(', '),
         duration: currentAudio.audio.duration || 0,
       }
       mediaControls.updateNowPlaying(metadata, {
@@ -214,7 +213,6 @@ const MiniPlayer: FC = () => {
       </div>
       <div className="mini-player-info">
         <div className="mini-player-title">{currentAudio.audio.title}</div>
-        <div className="mini-player-author">{currentAudio.audio.author.join(', ')}</div>
       </div>
       <button className="mini-player-btn" onClick={togglePlay}>
         {isPlaying ? '⏸' : '▶'}

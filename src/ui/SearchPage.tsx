@@ -34,7 +34,6 @@ const AudioItemWithCheckbox: FC<
       }
     >
       <div>{props.children}</div>
-      <div style={{ fontSize: 12, color: '#999' }}>{props.audio.author.join(', ')}</div>
     </List.Item>
   )
 }

@@ -61,7 +61,6 @@ export const PlayPage = () => {
             }
             description={
               <div>
-                <div>{audio.audio.author.join(', ')}</div>
                 {audio.audio.duration && <div>{Math.floor(audio.audio.duration / 60)}:{String(audio.audio.duration % 60).padStart(2, '0')}</div>}
               </div>
             }
