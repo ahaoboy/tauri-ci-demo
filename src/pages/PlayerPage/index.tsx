@@ -4,10 +4,14 @@ import {
   LeftOutlined,
   ShareAltOutlined,
   HeartOutlined,
+  HeartFilled,
   StepBackwardOutlined,
   StepForwardOutlined,
   PlayCircleFilled,
-  PauseCircleFilled
+  PauseCircleFilled,
+  RetweetOutlined,
+  SwapOutlined,
+  BarsOutlined,
 } from '@ant-design/icons';
 import { Slider, message } from 'antd';
 import { useAppStore } from '../../store';
@@ -28,15 +32,23 @@ const PlayerPage: FC = () => {
     isPlaying,
     togglePlay,
     audioElement,
+    playNext,
+    playPrev,
     playbackRate,
     setPlaybackRate,
-    toggleFavorite
+    toggleFavorite,
+    playlists,
+    playMode,
+    togglePlayMode
   } = useAppStore();
 
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Check if favorited
+  const isFavorited = currentAudio ? playlists.find(p => p.id === "Favorites")?.audios.some(a => a.audio.id === currentAudio.audio.id) : false;
 
   // Load cover
   useEffect(() => {
@@ -102,12 +114,17 @@ const PlayerPage: FC = () => {
     }
   };
 
-  const toggleSpeed = () => {
-    // 0.5 -> 0.25 -> 1 -> 1.25 -> 1.5 -> 0.5
-    const rates = [0.5, 0.25, 1, 1.25, 1.5];
-    const currentIndex = rates.indexOf(playbackRate);
-    const nextIndex = (currentIndex + 1) % rates.length;
-    setPlaybackRate(rates[nextIndex]);
+
+
+  // Helper to get mode icon
+  const getModeIcon = () => {
+    switch (playMode) {
+      case 'sequence': return <BarsOutlined />;
+      case 'list-loop': return <RetweetOutlined />;
+      case 'single-loop': return <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}><RetweetOutlined /><span style={{ position: 'absolute', fontSize: '10px', right: '-6px', top: '-4px', fontWeight: 'bold', color: 'currentColor' }}>1</span></div>;
+      case 'shuffle': return <SwapOutlined />;
+      default: return <BarsOutlined />;
+    }
   };
 
   if (!currentAudio) {
@@ -176,12 +193,12 @@ const PlayerPage: FC = () => {
         </div>
 
         {/* Main Controls */}
-        <div className="main-actions">
-          <button className="action-btn secondary" onClick={toggleSpeed}>
-            <span className="speed-text">{playbackRate}x</span>
+        <div className="main-controls">
+          <button className="action-btn secondary" onClick={togglePlayMode}>
+            {getModeIcon()}
           </button>
 
-          <button className="action-btn secondary">
+          <button className="action-btn secondary" onClick={() => playPrev()}>
             <StepBackwardOutlined />
           </button>
 
@@ -189,18 +206,13 @@ const PlayerPage: FC = () => {
             {isPlaying ? <PauseCircleFilled /> : <PlayCircleFilled />}
           </button>
 
-          <button className="action-btn secondary">
+          <button className="action-btn secondary" onClick={() => playNext()}>
             <StepForwardOutlined />
           </button>
 
 
           <button className="action-btn secondary" onClick={() => toggleFavorite(currentAudio)}>
-            {/* We need to check if it's favorited.
-                Ideally store should provide isFavorited helper or we compute it.
-                For now just keep the button working.
-                Let's assume we want visual feedback.
-                We can access playlists from store. */}
-            <HeartOutlined />
+            {isFavorited ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
           </button>
         </div>
       </div>

@@ -391,13 +391,14 @@ body {
 // Playlist card
 .playlist-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; // Changed from column to row for list view
+  align-items: center; // Align items vertically
   background: var(--bg-card);
   border-radius: @radius-md;
   overflow: hidden;
   border: 1px solid var(--border-color);
   cursor: pointer;
-  margin-bottom: @spacing-md;
+  margin-bottom: @spacing-sm; // Changed to match audio-card spacing
   transition: transform @transition-fast @ease-out,
     box-shadow @transition-fast @ease-out,
     border-color @transition-fast @ease-out;
@@ -405,20 +406,23 @@ body {
   &:hover {
     border-color: var(--primary-color);
     box-shadow: @shadow-md;
-    transform: translateY(-2px);
+    transform: translateX(4px); // Slide right slightly on hover
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.99);
     opacity: 0.9;
   }
 
   .playlist-cover {
-    aspect-ratio: 1;
+    width: 72px; // Fixed width
+    height: 72px; // Fixed height
+    // aspect-ratio: 1; // Removed aspect ratio constraint
     background: @primary-gradient;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0; // Prevent shrinking
 
     img {
       width: 100%;
@@ -427,16 +431,18 @@ body {
     }
 
     .cover-placeholder {
-      font-size: 48px;
+      font-size: 24px; // Smaller icon
       color: #fff;
     }
   }
 
   .playlist-info {
     padding: @spacing-md;
+    flex: 1; // Take remaining width
+    min-width: 0; // Enable text truncation
 
     .playlist-title {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--text-primary);
       white-space: nowrap;
@@ -446,17 +452,18 @@ body {
     }
 
     .playlist-meta {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-secondary);
     }
   }
 }
 
-// Playlist grid
+// Playlist grid (now list)
 .playlist-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: @spacing-md;
+  display: block; // Use block layout like audio-list
+  // display: grid;
+  // grid-template-columns: 1fr;
+  // gap: @spacing-md;
 }
 
 // Mini player bar

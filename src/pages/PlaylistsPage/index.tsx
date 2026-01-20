@@ -43,7 +43,11 @@ export const PlaylistsPage: FC = () => {
 
   // Handle audio click - play the audio
   const handleAudioClick = (audio: LocalAudio) => {
-    playAudio(audio);
+    if (selectedPlaylist) {
+      playAudio(audio, selectedPlaylist.audios);
+    } else {
+      playAudio(audio);
+    }
   };
 
   // Render playlist detail view

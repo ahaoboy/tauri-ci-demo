@@ -9,7 +9,7 @@ export const MusicPage: FC = () => {
 
   // Handle audio click - play the audio
   const handleAudioClick = (audio: typeof audios[number]) => {
-    playAudio(audio);
+    playAudio(audio, audios);
   };
 
   if (isConfigLoading) {
