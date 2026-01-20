@@ -33,7 +33,7 @@ regex = "1"
 anyhow = "*"
 musicfree = { git = "https://github.com/ahaoboy/musicfree", version = "0.1", default-features = false, features = [
   "bilibili",
-  "bindgen",
+  # "bindgen",
   "youtube",
   # "qjs",
 ] }
