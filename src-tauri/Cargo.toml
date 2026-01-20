@@ -43,6 +43,7 @@ tauri-plugin-fs = "2"
 tauri-plugin-clipboard-manager = "2"
 # FIXME: https://github.com/aws/aws-lc-rs/issues/1006
 aws-lc-sys = { version = "0.35" }
+aws-lc-rs = { version = "1.15.2" }
 
 [profile.release]
 debug = false
