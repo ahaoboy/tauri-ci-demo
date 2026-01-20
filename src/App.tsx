@@ -17,6 +17,7 @@ const PlaylistsPage = lazy(() => import('./pages/PlaylistsPage'));
 const MusicPage = lazy(() => import('./pages/MusicPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const PlayerPage = lazy(() => import('./pages/PlayerPage'));
 
 // Route to Tab mapping
 const ROUTE_TO_TAB: Record<string, Tab> = {
@@ -180,6 +181,7 @@ const AppLayout: FC = () => {
                     <Route path="/music" element={<MusicPage />} />
                     <Route path="/search" element={<SearchPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/player" element={<PlayerPage />} />
                   </Routes>
                 </Suspense>
               </div>

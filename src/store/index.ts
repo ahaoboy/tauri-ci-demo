@@ -22,6 +22,7 @@ interface AppState {
   currentAudio: LocalAudio | null;
   audioUrl: string | null;
   isPlaying: boolean;
+  playbackRate: number; // Added playbackRate
 
   // Theme
   themeMode: ThemeMode;
@@ -44,6 +45,8 @@ interface AppState {
   addAudiosToConfig: (audios: LocalAudio[]) => Promise<void>;
   addPlaylistToConfig: (playlist: LocalPlaylist) => Promise<void>;
   setLastAudio: (audio: LocalAudio) => Promise<void>;
+  setPlaybackRate: (rate: number) => void; // Added action
+  toggleFavorite: (audio: LocalAudio) => Promise<void>; // Added action (placeholder logic for now)
 }
 
 // Helper to get system theme
@@ -76,6 +79,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentAudio: null,
   audioUrl: null,
   isPlaying: false,
+  playbackRate: 1,
   themeMode: 'auto',
   isConfigLoading: false,
   audioElement: null,
@@ -258,6 +262,57 @@ export const useAppStore = create<AppState>((set, get) => ({
       console.error('Failed to save last audio:', error);
     }
   },
+
+  // Set playback rate
+  setPlaybackRate: (rate: number) => {
+    const { audioElement } = get();
+    set({ playbackRate: rate });
+    if (audioElement) {
+      audioElement.playbackRate = rate;
+    }
+  },
+
+  // Toggle favorite
+  toggleFavorite: async (audio: LocalAudio) => {
+    const { config } = get();
+    if (!config) return;
+
+    const favId = "我喜欢的";
+    let playlists = [...config.playlists];
+    let favPlaylist = playlists.find(p => p.id === favId);
+
+    if (!favPlaylist) {
+      favPlaylist = {
+        id: favId,
+        cover_path: null,
+        audios: [],
+        platform: 'local',
+      };
+      playlists.push(favPlaylist);
+    }
+
+    // Check if audio exists
+    const exists = favPlaylist.audios.some(a => a.audio.id === audio.audio.id);
+
+    let updatedFavPlaylist = { ...favPlaylist };
+    if (exists) {
+      updatedFavPlaylist.audios = favPlaylist.audios.filter(a => a.audio.id !== audio.audio.id);
+      console.log("Removed from favorites");
+    } else {
+      updatedFavPlaylist.audios = [...favPlaylist.audios, audio];
+      console.log("Added to favorites");
+    }
+
+    // Update playlists array
+    playlists = playlists.map(p => p.id === favId ? updatedFavPlaylist : p);
+
+    const updatedConfig: Config = {
+      ...config,
+      playlists,
+    };
+
+    await get().saveConfig(updatedConfig);
+  }
 }));
 
 // Export convenience hooks
@@ -266,4 +321,5 @@ export const usePlaylists = () => useAppStore((state) => state.playlists);
 export const useAudios = () => useAppStore((state) => state.audios);
 export const useCurrentAudio = () => useAppStore((state) => state.currentAudio);
 export const useIsPlaying = () => useAppStore((state) => state.isPlaying);
+export const usePlaybackRate = () => useAppStore((state) => state.playbackRate);
 export const useThemeMode = () => useAppStore((state) => state.themeMode);

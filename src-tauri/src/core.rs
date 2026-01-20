@@ -10,6 +10,7 @@ pub struct LocalAudio {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LocalPlaylist {
+    pub id: String,
     pub cover_path: Option<String>,
     pub cover: Option<String>,
     pub audios: Vec<LocalAudio>,

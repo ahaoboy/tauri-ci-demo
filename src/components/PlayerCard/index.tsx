@@ -1,4 +1,5 @@
 import { FC, useState, useEffect, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PauseCircleFilled, PlayCircleFilled } from '@ant-design/icons';
 import { get_loacl_url, LocalAudio } from '../../api';
 import { useAppStore } from '../../store';
@@ -11,6 +12,7 @@ interface PlayerCardProps {
 export const PlayerCard: FC<PlayerCardProps> = memo(({ audio }) => {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const { isPlaying, togglePlay } = useAppStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadCover = async () => {
@@ -37,8 +39,17 @@ export const PlayerCard: FC<PlayerCardProps> = memo(({ audio }) => {
     return null;
   }
 
+  const handleCardClick = () => {
+    navigate('/player');
+  };
+
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    togglePlay();
+  };
+
   return (
-    <div className="mini-player">
+    <div className="mini-player clickable" onClick={handleCardClick}>
       <div className="player-cover">
         {coverUrl ? (
           <img src={coverUrl} alt={audio.audio.title} />
@@ -53,7 +64,7 @@ export const PlayerCard: FC<PlayerCardProps> = memo(({ audio }) => {
         <div className="player-artist">{audio.audio.platform}</div>
       </div>
       <div className="player-controls">
-        <button className="control-btn" onClick={togglePlay}>
+        <button className="control-btn" onClick={handlePlayClick}>
           {isPlaying ? <PauseCircleFilled /> : <PlayCircleFilled />}
         </button>
       </div>
