@@ -35,9 +35,9 @@ jobs:
           - platform: "ubuntu-latest"
             args: ""
             mobile: android
-            java: "17"
-            ndk: "27.0.11902837"
-            cmdline-tools-version: "12266719"
+            java: "21"
+            ndk: "29.0.14206865"
+            cmdline-tools-version: "16.0"
 
     runs-on: ${{ matrix.platform }}
     steps:
