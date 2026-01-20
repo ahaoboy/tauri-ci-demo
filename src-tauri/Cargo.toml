@@ -46,7 +46,7 @@ tauri-plugin-clipboard-manager = "2"
 # aws-lc-rs = { version = "1.15.2" }
 
 [patch.crates-io]
-aws-lc-sys = { git = "https://github.com/zsdsys/aws-lc-rs" }
+aws-lc-sys = { git = "https://github.com/zsdsys/aws-lc-rs", branch = "android-getentropy-fix" }
 
 [profile.release]
 debug = false
