@@ -33,17 +33,20 @@ regex = "1"
 anyhow = "*"
 musicfree = { git = "https://github.com/ahaoboy/musicfree", version = "0.1", default-features = false, features = [
   "bilibili",
-  # "bindgen",
+  "bindgen",
+  "youtube",
   # "qjs",
-  # "youtube",
 ] }
 uuid = { version = "1.0", features = ["v4"] }
 md5 = "0.8"
 tauri-plugin-fs = "2"
 tauri-plugin-clipboard-manager = "2"
 # FIXME: https://github.com/aws/aws-lc-rs/issues/1006
-aws-lc-sys = { version = "0.35" }
-aws-lc-rs = { version = "1.15.2" }
+# aws-lc-sys = { version = "0.35" }
+# aws-lc-rs = { version = "1.15.2" }
+
+[patch.crates-io]
+aws-lc-sys = { git = "https://github.com/zsdsys/aws-lc-rs" }
 
 [profile.release]
 debug = false
