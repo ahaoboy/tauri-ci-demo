@@ -1,4 +1,4 @@
-use crate::LocalAudio;
+use crate::{LocalAudio, LocalPlaylist};
 use musicfree::{Audio, Platform};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -89,6 +89,9 @@ const CONFIG_FILE: &str = "musicfree.json";
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Config {
     pub audios: Vec<LocalAudio>,
+    pub playlists: Vec<LocalPlaylist>,
+    pub theme: Option<String>,
+    pub last_audio: Option<LocalAudio>,
 }
 
 pub fn get_config_path(app_dir: PathBuf) -> PathBuf {

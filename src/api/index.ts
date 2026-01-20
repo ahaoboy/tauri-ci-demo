@@ -1,43 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
 
-export interface PlaybackState {
-  isPlaying: boolean;
-  currentAudio: LocalAudio | null;
-  currentTime: number;
-  duration: number;
-  volume: number;
-  isLooping: boolean;
-  isShuffling: boolean;
-}
-
-export interface DownloadProgress {
-  audioId: string;
-  progress: number;
-  status: 'pending' | 'downloading' | 'completed' | 'error';
-}
-
-export interface AppState {
-  // UI State
-  activeTab: 'player' | 'download';
-
-  // Audio Library State
-  localAudios: LocalAudio[];
-  localAudiosLoading: boolean;
-  localAudiosError: string;
-
-  // Player State
-  playback: PlaybackState;
-  playlist: LocalAudio[];
-  currentIndex: number;
-
-  // Download State
-  downloadQueue: DownloadProgress[];
-  extractedAudios: Audio[];
-  extractLoading: boolean;
-  extractError: string;
-}
-
-
 export type Audio = {
   id: string;
   title: string;
@@ -70,12 +32,8 @@ export type LocalPlaylist = {
 export type Config = {
   audios: LocalAudio[];
   playlists: LocalPlaylist[];
-}
-
-export type CleanupResult = {
-  deleted_files: number;
-  freed_bytes: number;
-  deleted_audios: string[];
+  theme: undefined | string
+  last_audio?: LocalAudio;
 }
 
 export function extract_audios(url: string): Promise<Playlist> {
@@ -204,135 +162,4 @@ export async function get_local_audios(): Promise<LocalAudio[]> {
     console.error('❌ Failed to load local audios:', error);
     return [];
   }
-}
-
-export async function get_audio_suggestions(keyword: string, limit?: number): Promise<string[]> {
-  return invoke("get_audio_suggestions", { keyword, limit });
-}
-
-export async function update_play_count(audioId: string): Promise<void> {
-  return invoke("update_play_count", { audioId });
-}
-
-export async function create_playlist(name: string, platform: string): Promise<LocalPlaylist> {
-  const playlist = await invoke<LocalPlaylist>("create_playlist", { name, platform });
-
-  const config = await get_config();
-  config.playlists.push(playlist);
-  await save_config(config);
-
-  return playlist;
-}
-
-export async function delete_playlist(playlistId: string): Promise<boolean> {
-  const success = await invoke<boolean>("delete_playlist", { playlistId });
-
-  if (success) {
-    const config = await get_config();
-    config.playlists = config.playlists.filter(p => p.id !== playlistId);
-    await save_config(config);
-  }
-
-  return success;
-}
-
-export async function add_audio_to_playlist(playlistId: string, audioId: string): Promise<void> {
-  await invoke("add_audio_to_playlist", { playlistId, audioId });
-
-  const config = await get_config();
-  const playlist = config.playlists.find(p => p.id === playlistId);
-  const audio = config.audios.find(a => a.audio.id === audioId);
-
-  if (playlist && audio && !playlist.audios.some(a => a.audio.id === audioId)) {
-    playlist.audios.push(audio);
-    await save_config(config);
-  }
-}
-
-export async function remove_audio_from_playlist(playlistId: string, audioId: string): Promise<boolean> {
-  const success = await invoke<boolean>("remove_audio_from_playlist", { playlistId, audioId });
-
-  if (success) {
-    const config = await get_config();
-    const playlist = config.playlists.find(p => p.id === playlistId);
-    if (playlist) {
-      playlist.audios = playlist.audios.filter(a => a.audio.id !== audioId);
-      await save_config(config);
-    }
-  }
-
-  return success;
-}
-
-export async function reorder_playlist(playlistId: string, audioId: string, newPosition: number): Promise<void> {
-  await invoke("reorder_playlist", { playlistId, audioId, new_position: newPosition });
-
-  const config = await get_config();
-  const playlist = config.playlists.find(p => p.id === playlistId);
-  if (playlist) {
-    const currentIndex = playlist.audios.findIndex(a => a.audio.id === audioId);
-    if (currentIndex !== -1) {
-      const [audio] = playlist.audios.splice(currentIndex, 1);
-      const actualPosition = Math.min(newPosition, playlist.audios.length);
-      playlist.audios.splice(actualPosition, 0, audio);
-      await save_config(config);
-    }
-  }
-}
-
-export async function duplicate_playlist(playlistId: string): Promise<LocalPlaylist> {
-  const newPlaylist = await invoke<LocalPlaylist>("duplicate_playlist", { playlistId });
-
-  const config = await get_config();
-  config.playlists.push(newPlaylist);
-  await save_config(config);
-
-  return newPlaylist;
-}
-
-export async function merge_playlists(targetId: string, sourceId: string): Promise<void> {
-  await invoke("merge_playlists", { target_id: targetId, source_id: sourceId });
-
-  const config = await get_config();
-  const target = config.playlists.find(p => p.id === targetId);
-  const source = config.playlists.find(p => p.id === sourceId);
-
-  if (target && source) {
-    for (const audio of source.audios) {
-      if (!target.audios.some(a => a.audio.id === audio.audio.id)) {
-        target.audios.push(audio);
-      }
-    }
-    await save_config(config);
-  }
-}
-
-export async function shuffle_playlist(playlistId: string): Promise<void> {
-  await invoke("shuffle_playlist", { playlistId });
-
-  const config = await get_config();
-  const playlist = config.playlists.find(p => p.id === playlistId);
-  if (playlist) {
-    const shuffled = [...playlist.audios];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    playlist.audios = shuffled;
-    await save_config(config);
-  }
-}
-
-export async function cleanup_cache(maxSizeMb: number): Promise<CleanupResult> {
-  return invoke("cleanup_cache", { max_size_mb: maxSizeMb });
-}
-
-export async function import_local_audios(filePaths: string[]): Promise<number> {
-  const importedCount = await invoke<number>("import_local_audios", { file_paths: filePaths });
-
-  if (importedCount > 0) {
-    console.log(`✅ Imported ${importedCount} local audio files`);
-  }
-
-  return importedCount;
 }
