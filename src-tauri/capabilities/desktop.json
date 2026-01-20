@@ -12,7 +12,6 @@
     "fs:write-all",
     "clipboard-manager:default",
     "clipboard-manager:allow-write-text",
-    "core:window:default",
-    "media:default"
+    "core:window:default"
   ]
 }

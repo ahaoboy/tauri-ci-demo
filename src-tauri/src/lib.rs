@@ -106,9 +106,9 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}));
 
-    #[cfg(target_os = "windows")]
-    let builder = builder
-        .plugin(tauri_plugin_media::init());
+    // #[cfg(target_os = "windows")]
+    // let builder = builder
+    //     .plugin(tauri_plugin_media::init());
 
     builder
         .invoke_handler(tauri::generate_handler![
