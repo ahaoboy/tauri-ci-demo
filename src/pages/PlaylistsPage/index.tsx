@@ -1,23 +1,44 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect, useCallback } from 'react';
 import { LeftOutlined } from '@ant-design/icons';
 import { useAppStore } from '../../store';
 import { LocalPlaylist, LocalAudio } from '../../api';
 import { PlaylistCard, AudioCard } from '../../components';
+import { useNavigation } from '../../App';
 
 // Playlists page - shows all downloaded playlists
 // Clicking a playlist shows its detail with playable audios
+// Supports swipe right gesture to go back from detail view
 export const PlaylistsPage: FC = () => {
   const { playlists, playAudio } = useAppStore();
   const [selectedPlaylist, setSelectedPlaylist] = useState<LocalPlaylist | null>(null);
+  const { setIsInDetailView, setOnBackFromDetail } = useNavigation();
+
+  // Handle back navigation
+  const handleBack = useCallback(() => {
+    setSelectedPlaylist(null);
+  }, []);
+
+  // Register detail view state with navigation context
+  useEffect(() => {
+    const isDetail = selectedPlaylist !== null;
+    setIsInDetailView(isDetail);
+
+    if (isDetail) {
+      setOnBackFromDetail(() => handleBack);
+    } else {
+      setOnBackFromDetail(null);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      setIsInDetailView(false);
+      setOnBackFromDetail(null);
+    };
+  }, [selectedPlaylist, setIsInDetailView, setOnBackFromDetail, handleBack]);
 
   // Handle playlist click - show detail view
   const handlePlaylistClick = (playlist: LocalPlaylist) => {
     setSelectedPlaylist(playlist);
-  };
-
-  // Handle back button - return to playlist list
-  const handleBack = () => {
-    setSelectedPlaylist(null);
   };
 
   // Handle audio click - play the audio
@@ -51,9 +72,9 @@ export const PlaylistsPage: FC = () => {
                 {selectedPlaylist.audios.length} Tracks
               </span>
             </div>
-            {selectedPlaylist.audios.map((audio) => (
+            {selectedPlaylist.audios.map((audio, index) => (
               <AudioCard
-                key={audio.audio.id}
+                key={`${audio.audio.id}-${index}`}
                 audio={audio}
                 onClick={() => handleAudioClick(audio)}
               />
