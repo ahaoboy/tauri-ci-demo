@@ -1,4 +1,4 @@
-import { List, Avatar } from "antd-mobile"
+import { List, Avatar } from "antd"
 import { useEffect, useState } from "react"
 import { get_config, get_loacl_url, LocalAudio } from "../api"
 import { useAudio } from "../App"

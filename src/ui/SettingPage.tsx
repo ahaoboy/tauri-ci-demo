@@ -1,4 +1,4 @@
-import { Radio, Space } from 'antd-mobile'
+import { Radio, Space } from 'antd'
 
 interface SettingsPageProps {
   themeMode?: 'light' | 'dark' | 'auto';
@@ -12,11 +12,11 @@ export function SettingsPage({ themeMode = 'auto', setThemeMode }: SettingsPageP
         <h1>设置</h1>
         <p>管理应用设置和存储空间</p>
       </div>
-      
+
       <div className="settings-section">
         <h3>主题设置</h3>
-        <Radio.Group 
-          value={themeMode} 
+        <Radio.Group
+          value={themeMode}
           onChange={(val) => setThemeMode?.(val as 'light' | 'dark' | 'auto')}
         >
           <Space direction="vertical">

@@ -1,8 +1,8 @@
-import { Form, List, SearchBar, Checkbox, Button, Space, Image } from "antd-mobile"
+import { Form, List, SearchBar, Checkbox, Button, Space, Image } from "antd"
 import { useRef, useState } from "react"
 import { extract_audios, Audio, Playlist, download_audio } from "../api"
 import type { FC, PropsWithChildren } from 'react'
-import type { CheckboxRef } from 'antd-mobile/es/components/checkbox'
+import type { CheckboxRef } from 'antd'
 
 const AudioItemWithCheckbox: FC<
   PropsWithChildren<{
